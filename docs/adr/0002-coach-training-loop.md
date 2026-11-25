@@ -2,6 +2,7 @@
 
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
+- Amended: 2026-11-25 (part of the double loop moves into 0.1: research list, §3.2, §3.6, §3.7; #17).
 - Related: ADR-0001 (Accepted); `docs/research/ingest-formats.md` (R-FMT).
 - Amends ADR-0001:
   - §6 phasing, replaced by §3.7 here;
@@ -30,10 +31,25 @@ Research cited (ADR-0001's list, plus):
   - a library of verified, reusable skills;
   - iterative refinement from environment feedback and self-verification.
 - **Small-n statistics:** the Wilson score interval, and the exact paired sign-flip (randomisation) test. Both are standard.
+- **Added by the 2026-11-25 amendment** (links and dates checked 2026-11-25):
+  - Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?, [arXiv 2602.11988](https://arxiv.org/abs/2602.11988) (v3, 2026-09-29)
+  - TellOnce: Correcting Coding Agents Once, Improving Their Future Actions, [arXiv 2606.13174](https://arxiv.org/abs/2606.13174) (v2, 2026-10-25)
+  - Self-Improving AI Coding Agents Through Accumulated Behavioral Rules: A Closed-Loop Framework, [arXiv 2607.13091](https://arxiv.org/abs/2607.13091) (2026-07-13)
+  - **R-GG:** Who Grades the Grader? Co-Evolving Evaluation Metrics and Skills for Self-Improving LLM Agents, [arXiv 2607.12790](https://arxiv.org/abs/2607.12790) (v2, 2026-07-30)
+  - **R-SEAL:** Self-Authored Verification Is Unreliable in Heuristic Self-Improving Agents, [arXiv 2607.24300](https://arxiv.org/abs/2607.24300) (2026-07-27)
+  - Guardrails Beat Guidance: A Large-Scale Study of Rules, Skills, and Persistent Configuration for Coding Agents, [arXiv 2604.11088](https://arxiv.org/abs/2604.11088) (v2, 2026-05-28)
+  - Skill Issue: Lessons from Optimizing Repository SKILLs for Coding Agents, [arXiv 2609.12742](https://arxiv.org/abs/2609.12742) (2026-09-11)
+  - **R-NOISE:** On Randomness in Agentic Evals, [arXiv 2602.07150](https://arxiv.org/abs/2602.07150) (v3, 2026-03-25)
+  - Can Coding Agents Sustain Continual Evolution without Forgetting?, [arXiv 2611.03219](https://arxiv.org/abs/2611.03219) (2026-11-02)
+  - Cortex: Measurement-Gated Evolution and Pruning of Coding-Agent Skills and Rules, [arXiv 2610.14216](https://arxiv.org/abs/2610.14216) (2026-10-09)
+  - Admitted Is Not Effective: Lessons from a Notary-Gated Retrospective Loop in an Agentic Pipeline, [arXiv 2611.29727](https://arxiv.org/abs/2611.29727) (2026-11-22)
+  - **R-CHK:** Do They Do as They Are Told? Investigating Coding Agents' Adherence to Explicit Instructions in Context Files, [arXiv 2611.13709](https://arxiv.org/abs/2611.13709) (2026-11-10)
+  - Stale Instruction Files Override the Code in Coding Agents: A One-Sentence Fix, [arXiv 2610.30571](https://arxiv.org/abs/2610.30571) (2026-10-22)
+  - Why Does CLAUDE.md Keep Growing? Catastrophic Remembering in Agentic Coding, [arXiv 2608.11095](https://arxiv.org/abs/2608.11095) (v2, 2026-11-20)
 
 ## 1. Context
 
-blackbelt is first of all the coach that trains agents over weeks. It diagnoses, decides what to learn next, practises, measures progress against an outside standard, and challenges rules and evals (double-loop learning). The report card is the free intake and the hook. Belts are the outcome of training and the language of the autonomy ladder.
+blackbelt is first of all the coach that trains agents over weeks. It diagnoses, decides what to learn next, practises, measures progress against an outside standard, and challenges rules and evals: it questions the rules, not only the mistakes. This loop is inspired by Argyris & Schön's double-loop learning. The report card is the free intake and the hook. Belts are the outcome of training and the language of the autonomy ladder.
 
 The coach cannot change model weights. It can change only what the agent reads: its context. It must do so for any setup, locally, within EUR 10 per cycle, with every change versioned and reversible. Verdicts come only from deterministic checks; judges are audit-only. It must not adopt on its own before the seal exists.
 
@@ -201,7 +217,7 @@ coach_trainee:
 2. **`review`.** Follows up on earlier adoptions:
    - attributes world signals;
    - runs the transfer test per goal (§3.3);
-   - updates coach precision (ADR-0001: the share of adoptions with no rollback or negative signal in 30 days);
+   - updates coach precision (ADR-0001: the share of adoptions with no rollback or negative signal in 30 days; refined by the self-check in §3.6, #19);
    - reverts automatically when a severe signal is attributed to a change (pure-code rollback).
 3. **`diagnose` (M).**
    - Reads findings through read tools and emits `propose_goal`, which must reference existing finding ids.
@@ -222,7 +238,13 @@ coach_trainee:
    - 0.1: a LangGraph `interrupt`. The change is written to `pending/<change_id>/`, and `blackbelt adopt <id>` (terminal only) resumes the thread.
    - 0.2+: autonomous. PAUSE re-check, constitution check, ledger commit, actuator, hash verify.
    - A pending change expires after 14 days or when the incumbent's hash changes; its evidence is then stale.
-10. **`challenge`.** The double loop, §3.6 and below.
+10. **`challenge`.** The double loop (§3.6). The parts #18-#21 run in 0.1. All are report-only, and the user adopts every change. None of them runs inside this node; each bullet names where it runs.
+    - Rules the user's corrections contradict (#18): on the report card, as candidates only, never verdicts. "Rule may be wrong" and "rule is ignored" are listed apart. Matching is deterministic and counts only turns the user typed.
+    - The coach's track record (#19): in `review` and on the report card. Its only effect is that the coach raises its own bar.
+    - Rule polarity label (#20): on the report card. It describes wording only and is never advice.
+    - Unsealed context check (#21): started by the user, outside the weekly cycle (§3.6).
+    - In 0.1 the node itself is code only (the deterministic challenge of §3.7) and reviews the drills of `no_transfer` goals (§3.3).
+    - The sealed exam week, the foundation memo and autonomous adoption wait for 0.2.
 11. **`belts`.** Ladder evaluation (§3.5).
 12. **`report`, `remember`.** As in ADR-0001; `remember` also merges the intervention priors.
 
@@ -607,7 +629,30 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 - The text is `est. <belt> belt` until belts go live (0.3).
 - It carries only the belt colour and an optional work-type name (ShareModel rules).
 
-### 3.6 "Would it hire itself": the exam week
+### 3.6 "Would it hire itself": self-check, estimate and exam week
+
+**Coach self-check (0.1, #19).** Every cycle, free.
+- **Per adopted change:** held, rolled back, or followed by worse outcomes, with the sessions behind it.
+- **Evidence:** rollbacks and outside outcomes, never the user's approvals or the coach's own judgement. A change whose only evidence of success is the coach's own judgement is "unknown", not a win.
+- **Shown** in `review` and on the report card: wins and losses listed separately, a range, the number of runs, and the label "observational, no control group".
+- **Window and attribution:** 30 days (ADR-0001). Negative signals are attributed as in §3.5; `ambiguous` counts against every candidate change, shown as such.
+  - **Loss:** rolled back, or a negative signal attributed to the change within 30 days ("followed by worse outcomes").
+  - **Win** ("held"): 30 days old, no rollback, no attributed negative signal, and at least one outside outcome observed in the window (a finished work item of that work type without correction or failure).
+  - **Unknown:** not yet 30 days old and not lost, or no outside outcome (only the coach's own judgement).
+- **Precision** = wins / (wins + losses). Unknown changes are left out and shown separately. This refines ADR-0001's coach precision (§3.2, step 2).
+- **Bar:** if precision falls below 0.7 over at least 10 adoptions with a known outcome, the adoption bar doubles for 4 cycles, and the report says so. The 0.7, the 10, the doubling and the 4 cycles are configurable starting values to tune.
+
+**Unsealed estimate (0.1, #21).** Does the context earn its place? Full criteria are in #21.
+- **Start:** by the user, outside the weekly cycle. Every output is labelled "unsealed estimate".
+- **Arms:** with the context against without it. Whole groups only (files or sections), never single rules. An A/A run measures the noise floor.
+- **Reports,** in this order: per-rule compliance; cost and steps; pass rate, only when a pilot shows that the user's budget can reach it.
+- **Verdicts** (code): "earns its place", "hurts", "no meaningful effect", or "inconclusive" when it can't tell.
+- **Budget and consent:** the user sets the budget for each run. Before any paid run it shows drills × runs, the smallest detectable effect and the cost estimate, and waits for the user's go. The consent manifest applies.
+- **Drills:** exam drills, which screening never uses. The coach has already selected changes on them, and there is no technical barrier against leakage, so the result is only an estimate. It is biased in favour of coach-added items, because they were selected on these drills, and the output says so.
+- **Controls:** it takes the setup lock, checks PAUSE before every launch, and uses the per-run caps of §3.2 and the budget meter, with a hard stop at the user's budget for that run. That budget is separate from `budget.cycle_eur`, so it is outside the EUR 10 cycle cap and the monthly worst case.
+- **Limit:** it is never the basis for adoption or deletion on its own.
+
+**Exam week (from 0.2)**
 
 **Options**
 
@@ -617,7 +662,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 - **C. Every cycle.**
   - Costs: about 3× the budget.
 
-**Decision: B, from 0.2.** It needs the seal: comparing against exam drills the coach has optimised against is self-grading (R-GG, R-HOLD).
+**Decision: B, from 0.2.** The exam week decides things, so it needs the seal: comparing against exam drills the coach has optimised against is self-grading (R-GG, R-HOLD). The 0.1 unsealed estimate runs without the seal because it decides nothing.
 
 **How it runs.**
 - Every 4th cycle replaces practice.
@@ -637,7 +682,6 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 - **`current` not hired over `bare`:** the context does not earn its place.
   - A foundation memo (M, report-only proposals, closed evidence enum).
   - Rule-group ablation and delete proposals, applied under the reversible-change rules.
-- **Coach self-check, every cycle and free:** if coach precision falls below 0.7 over at least 10 adoptions, the adoption bar doubles for 4 cycles.
 
 ### 3.7 Release plan (replaces ADR-0001 §6)
 
@@ -655,8 +699,8 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 
 | Release | Content | Not yet |
 |---|---|---|
-| **0.1: the coach; you hold the pen** | ADR-0001 Phase 1 (core, 4 ingest adapters, 3 rule sources, L0/L1, `label`, report card, share, read-only plugin commands); estimated belts and stripes; `badge`; trainees and write surfaces (claude-code; codex as a read-only trainee); Claude Code runner (`shimmed`); budget meter, consent manifest, NF; replay drills, checkers, admission, split, canary scan; plans; the train graph with adopt interrupt and deterministic challenge; ledger, actuator, `adopt`, `rollback`, `pause`/`resume`; sim-trainee evals | seal and oracle, autonomous adoption, `gate check`, `hire`, exam week, ablation, judges, L2, synthetic drills, foundation memo, Codex runner |
-| **0.2: the sealed exam; he adopts alone** | seal G1-G4 and oracle (ADR-0001 §3.5) holding exam drills; autonomous adoption of reversible changes; exam week and `hire`; audit-only judge panel; foundation memo; Codex runner; `signal add`, CI signals | live belts |
+| **0.1: the coach; you hold the pen** | ADR-0001 Phase 1 (core, 4 ingest adapters, 3 rule sources, L0/L1, `label`, report card, share, read-only plugin commands); estimated belts and stripes; `badge`; trainees and write surfaces (claude-code; codex as a read-only trainee); Claude Code runner (`shimmed`); budget meter, consent manifest, NF; replay drills, checkers, admission, split, canary scan; plans; the train graph with adopt interrupt and deterministic challenge; report-only: contradicted rules (#18), coach track record (#19), rule polarity label (#20); unsealed estimate of whether the context earns its place (#21); ledger, actuator, `adopt`, `rollback`, `pause`/`resume`; sim-trainee evals | seal and oracle, autonomous adoption, `gate check`, `hire`, sealed exam week, halving and delete proposals from group ablation (block 2b), judges, L2, synthetic drills, foundation memo, Codex runner |
+| **0.2: the sealed exam; he adopts alone** | seal G1-G4 and oracle (ADR-0001 §3.5) holding exam drills; autonomous adoption of reversible changes; sealed exam week and `hire`; audit-only judge panel; foundation memo; Codex runner; `signal add`, CI signals | live belts |
 | **0.3: earned belts** | live ladder, `gate check`, belts unlock yellow to brown; group ablation (block 2b); synthetic practice drills; exec adapters | black |
 | **0.4+** | black (R4 safety net, restore drills); held-out authoring tools; opt-in synthetic drill library (own ADR); fleets (own ADR); hosted share (own ADR, Sensitive) | |
 
@@ -666,7 +710,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
   - M3: runner and drills;
   - M4: the train loop, ledger and adopt.
 - **Publishing** stays Sensitive.
-- **v1 blocks:** 1 and 2a ship in 0.1, 3 and 4 in 0.2, 2b in 0.3. This order follows the training-loop framing, which supersedes ADR-0001 phasing.
+- **v1 blocks:** 1 and 2a ship in 0.1, together with the report-only parts #18-#21; 3 and 4 in 0.2; 2b in 0.3. This order follows the training-loop framing, which supersedes ADR-0001 phasing.
 
 ### 3.8 CLI verbs and honest README claims
 
@@ -683,6 +727,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 | `drills list\|show\|forget` | drill store | 0.1 | |
 | `memory list\|show\|forget\|pin` | ADR-0001 | 0.1 | |
 | `purge` | delete | 0.1 | |
+| verb to be named in #21 | unsealed estimate (§3.6) | 0.1 | the go before spending |
 | `hire`, `seal add\|retire\|status`, `signal add` | | 0.2 | `seal` |
 | `train --propose-only` | opt out of autonomous adoption | 0.2 | |
 | `gate check`, `ablate` | | 0.3 | overrides |
