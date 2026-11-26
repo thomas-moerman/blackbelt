@@ -9,10 +9,11 @@
   - ADR-0001 §3.2: levels wording; clusters gain a stable id, recurrence and an owner layer;
   - ADR-0001 §3.3, §3.4, §5, §8: modules, report-card content, store layout, code list, failure modes;
   - ADR-0002 §3.1: constitution addition 1;
-  - ADR-0002 §3.2: one closed propose tool, guardrail and memory record; "trainee memory" renamed;
+  - ADR-0002 §3.2: one trigger, one closed propose tool, guardrail, memory record and three evals; "trainee memory" renamed;
   - ADR-0002 §3.3: goal fields and plan view;
   - ADR-0002 §3.4: location of the trace checks;
-  - ADR-0002 §3.8: README claims; ADR-0002 §7: failure modes.
+  - ADR-0002 §3.7: 0.1 content; ADR-0002 §3.8: CLI verbs and README claims;
+  - ADR-0002 §5: one model step; ADR-0002 §7: failure modes.
 - Supersedes: none.
 
 Sources (titles, versions and dates checked 2026-11-26):
@@ -101,7 +102,8 @@ type OwnerLayer = "agent" | "harness" | "loop" | "graph" | "memory" | "knowledge
 type OwnerReason =
   | "check_exists_still_recurs" | "done_without_check" | "rule_ignored_action"
   | "rule_ignored_result" | "rule_not_loaded" | "no_rule_found"
-  | "abstain_support" | "abstain_not_measurable" | "abstain_rules_unreadable";
+  | "abstain_support" | "abstain_not_measurable" | "abstain_rules_unreadable"
+  | "abstain_inventory_unreadable";
 interface Owner {
   layer: OwnerLayer;
   reason: OwnerReason;
@@ -123,13 +125,14 @@ interface Owner {
 **Routing rules, `router@1`.** The rules are ordered, and the first match wins. Support threshold θ = 0.6 (configurable; a change bumps the router version).
 
 1. `tool_calls` not measurable, or the adapter is degraded: `unknown`, `abstain_not_measurable`.
-2. An inventory item (§3.3) matches the offending action in at least θ of occurrences: the item's layer (`harness` for hooks, permissions and sandbox; `loop` for CI, linters and git hooks), `check_exists_still_recurs`.
-3. In at least θ of occurrences, the corrected agent turn has a write and no exec call after its last write: `loop`, `done_without_check`.
-4. A rule is linked and loaded in at least θ of occurrences, and the occurrences share an offending action (the same tool class with the same `cmd_head`, or paths inside one common glob): `harness`, `rule_ignored_action`. The action can be stopped before it happens.
-5. A rule is linked and loaded, with no shared offending action: `loop`, `rule_ignored_result`. The mistake shows only in the result.
-6. A rule is linked but not loaded in at least θ of occurrences: `knowledge`, `rule_not_loaded`. The rule exists but does not reach the agent.
-7. No rule is linked, and rule discovery read every rule source: `knowledge`, `no_rule_found`.
-8. Otherwise `unknown`, with `abstain_support` or `abstain_rules_unreadable`.
+2. A readable inventory item (§3.3) matches the offending action in at least θ of occurrences: the item's layer (`harness` for hooks, permissions and sandbox; `loop` for CI, linters and git hooks), `check_exists_still_recurs`.
+3. An inventory source that could cover the offending action is unreadable: `unknown`, `abstain_inventory_unreadable`. What an unread source matches is not known, so in v1 any unreadable source of the setup counts. It may hold the check, so the router never concludes that none exists.
+4. In at least θ of occurrences, the corrected agent turn has a write and no exec call after its last write: `loop`, `done_without_check`.
+5. A rule is linked and loaded in at least θ of occurrences, and the occurrences share an offending action (the same tool class with the same `cmd_head`, or paths inside one common glob): `harness`, `rule_ignored_action`. The action can be stopped before it happens.
+6. A rule is linked and loaded, with no shared offending action: `loop`, `rule_ignored_result`. The mistake shows only in the result.
+7. A rule is linked but not loaded in at least θ of occurrences: `knowledge`, `rule_not_loaded`. The rule exists but does not reach the agent.
+8. No rule is linked, and rule discovery read every rule source: `knowledge`, `no_rule_found`.
+9. Otherwise `unknown`, with `abstain_support` or `abstain_rules_unreadable`.
 
 - `router@1` never assigns `agent`, `graph` or `memory`. A property test asserts this. Those values come only from user labels in v1.
 - The router never reads `agent.label`. The role-identifier test covers `src/core/route/`.
@@ -176,10 +179,11 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
   - GitHub Actions `run:` steps (command head only);
   - linter and formatter config files (presence only);
   - the manifest (`coach.rules.json` gains `enforcement: [...]`), which is how any other setup declares its checks.
-- **Command head** (hook commands and workflow `run:` steps): skip leading `NAME=value` assignments, `env` with its arguments, and `sudo` and `exec` wrappers; then keep only the basename of the command. It must match the strict character set and pass the secret scan, or it is dropped.
+- **Command head** (hook commands and workflow `run:` steps): skip leading `NAME=value` assignments, `env` with its options (and their values) and `NAME=value` operands, and `sudo` and `exec` wrappers; then keep only the basename of the command that follows. It must match the strict character set and pass the secret scan, or it is dropped.
 - **Reading is passive:**
   - an unreadable file keeps its path and a fixed reason code, never the parser's message;
-  - symlinks that leave the scanned root are not followed;
+  - the scanned root is the repository for project-level sources, the user config directory for user-level settings, the system directory that holds them for managed settings, and the named directory for `core.hooksPath`;
+  - a symlink that leaves the scanned root is not followed; it is recorded and listed as `unreadable`, with its path and a fixed reason code;
   - YAML is loaded with a safe, schema-less loader;
   - git config is only parsed, or read with `git config --get`. `git status` and `git diff` are never run on a scanned repository, because planted config can run code.
 - **Never read or kept:** settings keys outside an allowlist (`env`, key helpers and the like), hook command and `run:` step text beyond the command head, and workflow secrets. A test plants canaries in those places, as `X=canary cmd` and `env X=canary cmd` in a hook and in a `run:` step, and in a malformed settings file, and asserts that none reaches the store or the output.
@@ -199,7 +203,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
   - Complexity: medium. Cost: 0. Latency: about 1-2 s for 30 days.
 - **D. Write the check** (constitution conflict). Rejected.
 
-**Decision: C.** The check spec uses ADR-0002's closed checker templates. Their trace evaluators move to `src/core/checks/`, so replay and drill admission share one implementation.
+**Decision: C.** A check spec (`CheckSpec`, the input of `renderCheck`) is one template from ADR-0002's closed checker enum plus its parameters. The templates' trace evaluators move to `src/core/checks/`, so replay and drill admission share one implementation.
 
 | Template | Suggested as | Layer | Replay from stored events |
 |---|---|---|---|
@@ -207,9 +211,10 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 | `scope` | a path guard: a permission rule or a PreToolUse hook on write tools (neither covers every write made by a shell subprocess) | harness | yes |
 | `trace_order` | a PreToolUse hook with session state | harness | yes |
 | `trace_require` | a Stop-hook check: X must have run after the last write | loop | yes |
-| `state_cmd` | a CI job or pre-commit step | loop | no: "can't replay from transcripts"; linked `ci_fail` and `revert` outcomes are shown instead |
-| `state_match` | a CI or lint step | loop | no, as above |
+| `state_cmd` | not suggested in v1 (a CI job or pre-commit step) | loop | no |
+| `state_match` | not suggested in v1 (a CI or lint step) | loop | no |
 
+- **State templates are not suggested in v1.** A suggestion needs at least one replay catch, and stored events cannot replay a state check. The report card still names the layer, says "can't replay from transcripts" and shows linked `ci_fail` and `revert` outcomes.
 - **Parameters** come from code heuristics over the mistake's features (`cmd_head`, path globs, tool classes), the same heuristics ADR-0002 §3.4 uses for drills. Values must match a strict character set. Anything else drops the suggestion.
 - **Replay output (deterministic, offline), over the last 30 days:**
   - fired: the number of agent turns where the check would have fired at least once, plus the raw call count;
@@ -217,7 +222,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
   - elsewhere: the rest, which would have blocked work nobody corrected;
   - caught: the mistake's occurrences with at least one firing, out of all of them.
 - **Wording** is always "would have fired", never "would have prevented".
-- **No suggestion** when it catches 0 occurrences. **A warning** when "elsewhere" is more than twice "on this mistake".
+- **No suggestion** when it catches 0 occurrences, or while an inventory source that could cover the offending action is unreadable (router rule 3). **A warning** when "elsewhere" is more than twice "on this mistake".
 - **Rendering** goes through an optional adapter method, `renderCheck?(spec): string`:
   - Claude Code renders a settings snippet and a short script;
   - other setups get a neutral description and a shell or CI snippet.
@@ -246,13 +251,14 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 
 **Graph.** A small change to ADR-0002 §3.2: `diagnose` (M) gains one closed propose tool. Code does the rest.
 - **The tool:** `propose_enforcement{finding_id, template, params}`. It writes to state only.
-- **Then, in code:** `validate` (zod; the template from the enum; the parameters must occur in the finding's own features; secret scan) → `replay` → `render`.
+- **Then, in code:** `validate` (zod; a replayable template from the enum; the parameters must occur in the finding's own features; secret scan) → `replay` → `render`.
 - **The result** goes into the plan and the report as text.
 - Heuristics come first, as with `choose_checker`. The model is asked only when the router abstained, or the heuristics found no spec with at least one catch.
 
 **Guardrails in code:**
 - at most 2 enforcement suggestions per cycle;
 - no suggestion without at least one replay catch;
+- no suggestion while an inventory source that could cover the offending action is unreadable (§3.4);
 - no parameter outside the strict character set;
 - no path inside `BLACKBELT_HOME`;
 - any failure drops the suggestion (fail closed).
@@ -265,7 +271,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 **Human in the loop.** Nothing leaves the machine and nothing is written outside the coach's home. The human installs the check, and that is the approval.
 
 **Evals** (the sim fixtures of ADR-0002):
-- mistakes planted per template get the right template: at least 0.8 of seeds;
+- mistakes planted per replayable template get the right template: at least 0.8 of seeds;
 - suggestions with 0 catches: 0;
 - injected shell metacharacters or instructions in transcripts that reach rendered text: 0.
 
@@ -284,7 +290,7 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 | Transcript content shapes a rendered script that the user pastes (command injection) | strict character set for parameters, quoted rendering, no `eval`, injection fixtures | rejected suggestions counted |
 | Secrets in settings reach the store | key allowlist in the parsers; command head only | canary test over store and output |
 | Inline env assignment in a hook command or run step reaches the store | strip assignments and wrappers, secret-scan the head | canary test |
-| Parser error text or a symlinked settings file leaks content | reason codes only, no symlink following | malformed-file canary |
+| Parser error text or a symlinked settings file leaks content | reason codes only; a symlink leaving the scanned root is not followed and is listed as `unreadable` | malformed-file canary |
 | The agent fakes compliance to look enforced | routing reads behaviour, not claims; recurrence is the measure | recurrence flat while compliance rises |
 | A suggestion over-blocks and the user turns enforcement off | "elsewhere" count and warning | suggestions removed again from a later inventory |
 
@@ -305,7 +311,7 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 **Negative:**
 - Three of the six layers are not assigned by code in v1.
 - Lexical rule linking misses paraphrases.
-- Replay cannot see state checks.
+- Replay cannot see state checks, so a mistake that only a state check would catch gets a layer but no suggestion in v1.
 - A renderer is needed per harness, and hook schemas change between releases.
 - A second labelling prompt.
 

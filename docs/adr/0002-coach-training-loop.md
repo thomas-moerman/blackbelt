@@ -4,7 +4,7 @@
 - Date: 2026-11-24
 - Amended: 2026-11-25 (part of the double loop moves into 0.1: research list, §3.2, §3.6, §3.7; #17).
 - Amended: 2026-11-26 (citations scoped, foundations reworded, screening node renamed `screen`; #23).
-- Amended: 2026-11-26 by ADR-0003.
+- Amended: 2026-11-26 by ADR-0003 (Proposed).
 - Related: ADR-0001 (Accepted); `docs/research/ingest-formats.md` (R-FMT).
 - Amends ADR-0001:
   - §6 phasing, replaced by §3.7 here;
@@ -198,6 +198,7 @@ interface ContextItem {
 **Triggers.**
 - `blackbelt train`, run by hand or by the user's cron. No daemon is installed (ADR-0001).
 - A new world signal: belts and demotion only, code only, no spend.
+- An enforcement inventory change: marks a suggestion "added", code only, no spend (ADR-0003).
 - A model or harness version change: invalidates noise floors and cached baselines.
 - `blackbelt adopt <id>`: resumes a paused thread (0.1).
 
@@ -278,7 +279,7 @@ Why at least 5 exam drills: with n drills, the smallest exact p-value is 2^-n. F
   - No tool reads exam drills. The registry holds no handle to `drills/**/exam`, and a test asserts this.
 - **Propose** (state only, no side effects):
   - `propose_goal{finding_ids, kind: fix_mistake|prune, work_type, hypothesis<=300}`
-  - `propose_enforcement{finding_id, template, params}` (ADR-0003)
+  - `propose_enforcement{finding_id, template, params}` (ADR-0003; replayable templates only)
   - `choose_checker{drill_id, template, params}`
   - `propose_item_add{trainee, surface, kind, text, goal_id}`, `propose_item_edit{item_id, text}`, `propose_item_retire{item_id, reason}`
   - ADR-0001's `propose_rule_edit/delete/add` for user rules
@@ -290,7 +291,7 @@ Why at least 5 exam drills: with n drills, the smallest exact p-value is 2^-n. F
 - at most 3 screen iterations per goal per cycle;
 - at most 1 adoption per goal and 2 per trainee per cycle, so world signals attribute cleanly;
 - at most 3 active goals, 1 new per cycle;
-- at most 2 enforcement suggestions per cycle; none without a replay catch (ADR-0003);
+- at most 2 enforcement suggestions per cycle; none without a replay catch, and none while an inventory source that could cover the offending action is unreadable (ADR-0003);
 - per drill run: a token cap of max(2× the original episode's tokens, 30k), EUR 0.40, and 300 s;
 - PAUSE checked before every runner launch and every write;
 - fail closed: any guard failure gives `blocked(<reason>)`.
@@ -356,6 +357,9 @@ State holds references, never transcript or drill text.
 | More than one belt step per evaluation (property test) | 0 | 0.1 |
 | Budget overrun; actions after PAUSE; rollback restore | 0; 0; byte-identical | 0.1 |
 | Runner outward attempts that escape the shims (fixture agent) | 0 at `shimmed` with absolute-path probes reported | 0.1 |
+| Mistakes planted per replayable template get the right template (ADR-0003) | ≥ 0.8 of seeds | 0.1 |
+| Enforcement suggestions with 0 replay catches (ADR-0003) | 0 | 0.1 |
+| Injected shell metacharacters or instructions in transcripts that reach rendered text (ADR-0003) | 0 | 0.1 |
 
 Model nodes are tested on recorded fixtures. Each release also gets a live smoke run on `fixtures/demo` with its cost reported.
 
@@ -450,6 +454,7 @@ belts (estimated: they grant nothing yet)
 goals
   1  runs the tests before saying done      code  active
      comes back 6.1 -> 1.4 per 100 code items (transfer pending) · exam 1/5 -> 4/5  (+0.60, p=0.03, noise floor 0.13)   dev set (visible)   adopted c-7f3a
+     fix belongs: checks (loop) · suggested stop check: would have fired 7 times in 30 days, 5 on this mistake
   2  edits files outside the asked scope    code  drills passed, transfer pending (week 2 of 4)
   3  edits generated files by hand          docs  watching: needs 5 exam drills, has 3
 
@@ -708,7 +713,7 @@ ADR-0001's placeholders cannot be met at their minimum n: 0/20 gives U = 0.161, 
 
 | Release | Content | Not yet |
 |---|---|---|
-| **0.1: the coach; you hold the pen** | ADR-0001 Phase 1 (core, 4 ingest adapters, 3 rule sources, L0/L1, `label`, report card, share, read-only plugin commands); estimated belts and stripes; `badge`; trainees and write surfaces (claude-code; codex as a read-only trainee); Claude Code runner (`shimmed`); budget meter, consent manifest, NF; replay drills, checkers, admission, split, canary scan; plans; the train graph with adopt interrupt and deterministic challenge; report-only: contradicted rules (#18), coach track record (#19), rule polarity label (#20); unsealed estimate of whether the context earns its place (#21); ledger, actuator, `adopt`, `rollback`, `pause`/`resume`; sim-trainee evals | seal and oracle, autonomous adoption, `gate check`, `hire`, sealed exam week, halving and delete proposals from group ablation (block 2b), judges, L2, synthetic drills, foundation memo, Codex runner |
+| **0.1: the coach; you hold the pen** | ADR-0001 Phase 1 (core, 4 ingest adapters, 3 rule sources, L0/L1, `label`, report card, share, read-only plugin commands); estimated belts and stripes; `badge`; trainees and write surfaces (claude-code; codex as a read-only trainee); Claude Code runner (`shimmed`); budget meter, consent manifest, NF; replay drills, checkers, admission, split, canary scan; plans; the train graph with adopt interrupt and deterministic challenge; report-only: contradicted rules (#18), coach track record (#19), rule polarity label (#20); unsealed estimate of whether the context earns its place (#21); owner layers and the enforcement inventory on the report card; `suggest` (text only, ADR-0003); ledger, actuator, `adopt`, `rollback`, `pause`/`resume`; sim-trainee evals | seal and oracle, autonomous adoption, `gate check`, `hire`, sealed exam week, halving and delete proposals from group ablation (block 2b), judges, L2, synthetic drills, foundation memo, Codex runner |
 | **0.2: the sealed exam; he adopts alone** | seal G1-G4 and oracle (ADR-0001 §3.5) holding exam drills; autonomous adoption of reversible changes; sealed exam week and `hire`; audit-only judge panel; foundation memo; Codex runner; `signal add`, CI signals | live belts |
 | **0.3: earned belts** | live ladder, `gate check`, belts unlock yellow to brown; group ablation (block 2b); synthetic screen drills; exec adapters | black |
 | **0.4+** | black (R4 safety net, restore drills); held-out authoring tools; opt-in synthetic drill library (own ADR); fleets (own ADR); hosted share (own ADR, Sensitive) | |
@@ -728,6 +733,8 @@ ADR-0001's placeholders cannot be met at their minimum n: 0/20 gives U = 0.161, 
 | `report` (default), `--share` | report card | 0.1 | |
 | `badge` | belt SVG, local | 0.1 | |
 | `rules`, `label`, `status` | as ADR-0001 | 0.1 | |
+| `label --owner` | label where a fix belongs, to measure routing accuracy (ADR-0003) | 0.1 | |
+| `suggest <mistake>` | print a hook or check as text with its replay evidence; writes nothing (ADR-0003) | 0.1 | |
 | `plan [--agent A] [--history] [--md]`, `plan drop <goal>` | development plan | 0.1 | |
 | `train [--dry-run]` (alias `cycle`) | one cycle; `--dry-run` shows plan, drills and cost manifest and spends nothing | 0.1 | first run only (include line, consent) |
 | `adopt <change_id>` | apply a change that passed its exam | 0.1 | yes |
@@ -771,6 +778,7 @@ When this ADR is accepted, the generated README blocks change: the belts table i
   - `diagnose` (`propose_goal`);
   - `choose_checker` (fallback);
   - `propose_intervention`;
+  - `propose_enforcement` (fallback, ADR-0003);
   - the foundation memo (0.2);
   - judges (audit only).
 - **Code:** everything else, including:

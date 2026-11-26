@@ -3,7 +3,7 @@
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
 - Amended: 2026-11-26 (citations scoped, foundations reworded; #23).
-- Amended: 2026-11-26 by ADR-0003 (owner layers; `layer` renamed `detector_level`).
+- Amended: 2026-11-26 by ADR-0003 (Proposed; owner layers; `layer` renamed `detector_level`).
 - Related: `docs/research/ingest-formats.md` (transcript and trace formats).
 - Supersedes: none (first ADR).
 
