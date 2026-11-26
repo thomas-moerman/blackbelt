@@ -5,7 +5,7 @@
 - Related: ADR-0001 (Accepted), ADR-0002 (Accepted).
 - Amends:
   - ADR-0001 §3.1 rule 3 and §3.2: the Finding field `layer` (detector level L0-L2) is renamed `detector_level`;
-  - ADR-0001 §3.1: adds the enforcement-source plugin type, `renderCheck` and declared checks in the manifest;
+  - ADR-0001 §3.1: adds the enforcement-source plugin type, `renderCheck` and declared checks in the manifest; `tool_call.cmd_head` becomes the command head of §3.3 here;
   - ADR-0001 §3.2: levels wording; clusters gain a stable id, recurrence and an owner layer;
   - ADR-0001 §3.3, §3.4, §5, §8: modules, report-card content, store layout, code list, failure modes;
   - ADR-0002 §3.1: constitution addition 1;
@@ -174,12 +174,18 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 ```
 
 - **v1 sources:**
-  - Claude Code settings at every level: only the `hooks` and `permissions` keys;
+  - Claude Code settings at every level: only the `hooks` and `permissions` keys, and within them only the fields listed below;
+    - from each hook: the event, `matcher`, `type` and the command head;
+    - from each permission rule: the tool, the command head of the rule's pattern, and a path glob;
   - git hooks (non-sample files in `.git/hooks`, `core.hooksPath`, and the usual hook managers' config files);
   - GitHub Actions `run:` steps (command head only);
   - linter and formatter config files (presence only);
   - the manifest (`coach.rules.json` gains `enforcement: [...]`), which is how any other setup declares its checks.
-- **Command head** (hook commands and workflow `run:` steps): skip leading `NAME=value` assignments, `env` with its options (and their values) and `NAME=value` operands, and `sudo` and `exec` wrappers; then keep only the basename of the command that follows. It must match the strict character set and pass the secret scan, or it is dropped.
+- **Command head** (one function for `tool_call.cmd_head`, hook commands, permission rule patterns and workflow `run:` steps, so events and inventory compare): tokenize with a POSIX shell-word parser, not a whitespace split; skip leading `NAME=value` assignments, `env` with its options (and their values) and `NAME=value` operands, and `sudo` and `exec` wrappers, repeatedly and in any order (`sudo X=v cmd` gives `cmd`); then keep only the basename of the command that follows. It must match the strict character set and pass the secret scan, or it is dropped.
+- **Strict character set**, for every matcher value from any source (the manifest included) and every check parameter; a value that fails is dropped:
+  - command heads and tool names: `^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$`;
+  - path globs: `^[A-Za-z0-9._/*-]+$`, with no leading `-` and no `..` segment;
+  - so no control or bidirectional characters pass.
 - **Reading is passive:**
   - an unreadable file keeps its path and a fixed reason code, never the parser's message;
   - the scanned root is the repository for project-level sources, the user config directory for user-level settings, the system directory that holds them for managed settings, and the named directory for `core.hooksPath`;
@@ -187,7 +193,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
   - in a git worktree `.git` is a file: its `gitdir:` line and that directory's `commondir` file are parsed, never run, to find the hooks directory, which joins the scanned root; if it cannot be resolved, it is listed as `unreadable`;
   - YAML is loaded with a safe, schema-less loader;
   - git config is only parsed, or read with `git config --get`. `git status` and `git diff` are never run on a scanned repository, because planted config can run code.
-- **Never read or kept:** settings keys outside an allowlist (`env`, key helpers and the like), hook command and `run:` step text beyond the command head, and workflow secrets. A test plants canaries in those places, as `X=canary cmd` and `env X=canary cmd` in a hook and in a `run:` step, and in a malformed settings file, and asserts that none reaches the store or the output.
+- **Never read or kept:** settings keys and hook fields outside the allowlist (`env`, key helpers, hook `headers` and `url`, and the like), permission rule text beyond the three fields above, hook command and `run:` step text beyond the command head, and workflow secrets. A test plants canaries in those places, as `X=canary cmd` and `env X=canary cmd` in a hook, in a `run:` step and in a tool call's command, in `permissions.allow`, in a hook's `headers` and `url`, and in a malformed settings file, and asserts that none reaches the store or the output.
 - **Stored** as `inventory/<setup>/<date>.json` (matchers only), so a later intake can tell when a suggestion was adopted (§3.4).
 - **Report panel:** "checks found: 3 hooks, 12 permission rules, 1 CI workflow, 2 linters", with unreadable files listed by path and reason code.
 
@@ -216,7 +222,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 | `state_match` | not suggested in v1 (a CI or lint step) | loop | no |
 
 - **State templates are not suggested in v1.** A suggestion needs at least one replay catch, and stored events cannot replay a state check. The report card still names the layer, says "can't replay from transcripts" and shows linked `ci_fail` and `revert` outcomes.
-- **Parameters** come from code heuristics over the mistake's features (`cmd_head`, path globs, tool classes), the same heuristics ADR-0002 §3.4 uses for drills. Values must match a strict character set. Anything else drops the suggestion.
+- **Parameters** come from code heuristics over the mistake's features (`cmd_head`, path globs, tool classes), the same heuristics ADR-0002 §3.4 uses for drills. Values must match the strict character set (§3.3). Anything else drops the suggestion.
 - **Replay output (deterministic, offline), over the last 30 days:**
   - fired: the number of agent turns where the check would have fired at least once, plus the raw call count;
   - on this mistake: how many of those turns belong to the mistake's corrected episodes;
@@ -260,7 +266,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 - at most 2 enforcement suggestions per cycle;
 - no suggestion without at least one replay catch;
 - no suggestion while an inventory source that could cover the offending action is unreadable (§3.4);
-- no parameter outside the strict character set;
+- no parameter outside the strict character set (§3.3);
 - no path inside `BLACKBELT_HOME`;
 - any failure drops the suggestion (fail closed).
 
@@ -289,7 +295,7 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 | Threat | Control | Detection |
 |---|---|---|
 | Transcript content shapes a rendered script that the user pastes (command injection) | strict character set for parameters, quoted rendering, no `eval`, injection fixtures | rejected suggestions counted |
-| Secrets in settings reach the store | key allowlist in the parsers; command head only | canary test over store and output |
+| Secrets in settings reach the store | key and field allowlist in the parsers; command head only | canary test over store and output |
 | Inline env assignment in a hook command or run step reaches the store | strip assignments and wrappers, secret-scan the head | canary test |
 | Parser error text or a symlinked settings file leaks content | reason codes only; a symlink leaving the scanned root is not followed and is listed as `unreadable` | malformed-file canary |
 | The agent fakes compliance to look enforced | routing reads behaviour, not claims; recurrence is the measure | recurrence flat while compliance rises |
@@ -345,8 +351,15 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 ## 9. Open questions
 
 1. Should goals routed outside Knowledge still get Knowledge training in 0.1? Recommended: yes, and measure.
-2. Should the first token of `cmd_head` gain an allowlisted second token (for example `npm test`) to sharpen the Loop rule? Recommended: later, as an additive optional field.
+2. Should `cmd_head` gain an allowlisted second token (for example `npm test`) to sharpen the Loop rule? Recommended: later, as an additive optional field.
 3. Should state-template suggestions (CI, pre-commit, lint) come with linked outcome evidence? Recommended: later. v1 has none, because suggestions need replay evidence.
+4. Settle before Accepted:
+   - containment of git pointers and of a repository-level `core.hooksPath`;
+   - symlinked directories, hard links, special files and size limits;
+   - trust in checks written by the agent or by a repository manifest (adoption detection, memory);
+   - rendered hooks must not fail open or loop, and must match replay;
+   - escaping control characters in printed paths and anchors;
+   - the definition of "unreadable", and its abuse to silence suggestions.
 
 ## 10. Facts to check before building
 
@@ -354,6 +367,7 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 - Whether transcripts record a hook block.
 - Permission rule syntax for paths and commands.
 - All settings levels, and plugin hook files.
+- Hook types and their fields.
 - Git worktree layout (`gitdir`/`commondir`).
 - Codex enforcement config.
 - The quoted findings against the full texts.

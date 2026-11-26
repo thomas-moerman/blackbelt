@@ -3,7 +3,7 @@
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
 - Amended: 2026-11-26 (citations scoped, foundations reworded; #23).
-- Amended: 2026-11-26 by ADR-0003 (Proposed; owner layers; `layer` renamed `detector_level`).
+- Amended: 2026-11-26 by ADR-0003 (Proposed; owner layers; `layer` renamed `detector_level`; `cmd_head` redefined).
 - Related: `docs/research/ingest-formats.md` (transcript and trace formats).
 - Supersedes: none (first ADR).
 
@@ -112,7 +112,7 @@ interface CoachEvent {
 |---|---|
 | `session_start` | `interactive: boolean \| "unknown"`, `entrypoint?`, `harness_version?` |
 | `session_end` | `end_reason: "normal" \| "killed" \| "unknown"` |
-| `tool_call` | `call_id`, `tool`, `tool_class: "read" \| "write" \| "exec" \| "net" \| "agent" \| "other"`, `paths?: string[]`, `cmd_head?: string` (first token only; never the full command, which may hold secrets) |
+| `tool_call` | `call_id`, `tool`, `tool_class: "read" \| "write" \| "exec" \| "net" \| "agent" \| "other"`, `paths?: string[]`, `cmd_head?: string` (the command head of ADR-0003 §3.3; never the full command, which may hold secrets) |
 | `tool_result` | `call_id`, `status: "ok" \| "error" \| "rejected"` |
 | `interrupt`, `tool_rejection` | `marker` (the raw marker kind), `call_id?` |
 | `delegation` | `child_session?`, `child_agent`, `via_call_id?` |
