@@ -186,15 +186,15 @@ Stripes show how close the next belt is. One serious incident: straight back to 
 
 ## he grades the rules too
 
-The loop is inspired by Argyris & Schön's double-loop learning ([the 1978 book](https://openlibrary.org/books/OL4565877M)): when a mistake comes back, question the rule, not only the work.
+His training loop is inspired by Argyris & Schön's double-loop learning ([the 1978 book](https://openlibrary.org/books/OL4565877M)): when a mistake comes back, question the rule, not only the work.
 
-Whether rules help at all is an open question. In one study, context files did not generally improve coding agents' success rates, and they raised the cost ([Gloaguen et al., 2026](https://arxiv.org/abs/2602.11988)).
+Whether rules help at all is an open question. In one study, context files did not generally improve coding agents' success rates, and they raised the cost ([Gloaguen et al., 2026](https://arxiv.org/abs/2602.11988)). A preprint reports modest evidence the other way: rule files raised pass rates, random rules as much as curated ones ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)).
 
-0.1 (in progress), report only:
+0.1 (in progress), report only. The intake lists the rules that never fired. Also:
 
-- **contradicted rules.** You keep correcting what a rule asks for: the rule may be wrong. You keep restating a rule: it is ignored, and may need to be a hook or a test. Candidates, never verdicts. ([#18](https://github.com/thomas-moerman/blackbelt/issues/18))
+- **contradicted rules.** You keep correcting what a rule asks for: the rule may be wrong. You keep restating a rule: it may be ignored, and may need to be a hook or a test. Candidates, never verdicts. ([#18](https://github.com/thomas-moerman/blackbelt/issues/18))
 - **his own track record.** Every change you adopted: held, rolled back, followed by worse outcomes, or unknown. Labelled "observational, no control group". ([#19](https://github.com/thomas-moerman/blackbelt/issues/19))
-- **rule wording.** How many rules say "don't", how many say "do". A label, not advice: one preprint saw wording matter, and its authors call that suggestive ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)). ([#20](https://github.com/thomas-moerman/blackbelt/issues/20))
+- **rule wording.** How many rules say "don't", how many say "do". A label, not advice: one preprint saw "don't" rules help and "do" rules hurt in a small rule set, and its authors call that suggestive ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)). ([#20](https://github.com/thomas-moerman/blackbelt/issues/20))
 - **does your context earn its place.** Replay drills with your rules and without them. An unsealed estimate until the sealed exam (0.2), and "inconclusive" when he can't tell. ([#21](https://github.com/thomas-moerman/blackbelt/issues/21))
 
 He shows the numbers. Nothing changes without them.
