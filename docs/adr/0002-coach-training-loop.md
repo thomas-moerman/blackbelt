@@ -198,7 +198,8 @@ interface ContextItem {
 **Triggers.**
 - `blackbelt train`, run by hand or by the user's cron. No daemon is installed (ADR-0001).
 - A new world signal: belts and demotion only, code only, no spend.
-- An enforcement inventory change: marks a suggestion "added", code only, no spend (ADR-0003).
+- Checked at intake, since no daemon runs: a new recurring mistake (ADR-0003).
+- Checked at intake: an enforcement inventory change, which marks a suggestion "added", code only, no spend (ADR-0003).
 - A model or harness version change: invalidates noise floors and cached baselines.
 - `blackbelt adopt <id>`: resumes a paused thread (0.1).
 
@@ -222,7 +223,7 @@ coach_trainee:
    - reverts automatically when a severe signal is attributed to a change (pure-code rollback).
 3. **`diagnose` (M).**
    - Reads findings through read tools and emits `propose_goal`, which must reference existing finding ids.
-   - It may also emit `propose_enforcement`, only when the owner router abstained or code heuristics found no check with at least one replay catch (ADR-0003 §3.6).
+   - It may also emit `propose_enforcement`, only when the owner router abstained or code heuristics found no check with at least one replay catch, and never on `abstain_inventory_unreadable` (ADR-0003 §3.6).
    - It is skipped, at no cost, when no new clusters appeared.
 4. **`curriculum`.** Scores goals, fills slots and picks the focus goal (§3.3). It writes a plan revision as a ledger commit.
 5. **`drills` (subgraph).** Episode extraction, then checker choice: code heuristics first, with M `choose_checker` only when those fail. Then validation, split and store (§3.4).

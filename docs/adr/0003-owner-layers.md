@@ -9,7 +9,7 @@
   - ADR-0001 §3.2: levels wording; clusters gain a stable id, recurrence and an owner layer;
   - ADR-0001 §3.3, §3.4, §5, §8: modules, report-card content, store layout, code list, failure modes;
   - ADR-0002 §3.1: constitution addition 1;
-  - ADR-0002 §3.2: one trigger, one closed propose tool, guardrail, memory record and three evals; "trainee memory" renamed;
+  - ADR-0002 §3.2: two triggers, one closed propose tool, guardrail, memory record and three evals; "trainee memory" renamed;
   - ADR-0002 §3.3: goal fields and plan view;
   - ADR-0002 §3.4: location of the trace checks;
   - ADR-0002 §3.7: 0.1 content; ADR-0002 §3.8: CLI verbs and README claims;
@@ -184,6 +184,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
   - an unreadable file keeps its path and a fixed reason code, never the parser's message;
   - the scanned root is the repository for project-level sources, the user config directory for user-level settings, the system directory that holds them for managed settings, and the named directory for `core.hooksPath`;
   - a symlink that leaves the scanned root is not followed; it is recorded and listed as `unreadable`, with its path and a fixed reason code;
+  - in a git worktree `.git` is a file: its `gitdir:` line and that directory's `commondir` file are parsed, never run, to find the hooks directory, which joins the scanned root; if it cannot be resolved, it is listed as `unreadable`;
   - YAML is loaded with a safe, schema-less loader;
   - git config is only parsed, or read with `git config --get`. `git status` and `git diff` are never run on a scanned repository, because planted config can run code.
 - **Never read or kept:** settings keys outside an allowlist (`env`, key helpers and the like), hook command and `run:` step text beyond the command head, and workflow secrets. A test plants canaries in those places, as `X=canary cmd` and `env X=canary cmd` in a hook and in a `run:` step, and in a malformed settings file, and asserts that none reaches the store or the output.
@@ -246,14 +247,14 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 
 **Triggers:**
 - `blackbelt train`;
-- a new recurring mistake;
-- an inventory change, which marks a suggestion "added".
+- checked at intake, since no daemon runs: a new recurring mistake;
+- checked at intake: an inventory change, which marks a suggestion "added".
 
 **Graph.** A small change to ADR-0002 §3.2: `diagnose` (M) gains one closed propose tool. Code does the rest.
 - **The tool:** `propose_enforcement{finding_id, template, params}`. It writes to state only.
 - **Then, in code:** `validate` (zod; a replayable template from the enum; the parameters must occur in the finding's own features; secret scan) → `replay` → `render`.
 - **The result** goes into the plan and the report as text.
-- Heuristics come first, as with `choose_checker`. The model is asked only when the router abstained, or the heuristics found no spec with at least one catch.
+- Heuristics come first, as with `choose_checker`. The model is asked only when the router abstained, or the heuristics found no spec with at least one catch. It is not asked on `abstain_inventory_unreadable`: the result would always be dropped.
 
 **Guardrails in code:**
 - at most 2 enforcement suggestions per cycle;
@@ -275,7 +276,7 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 - suggestions with 0 catches: 0;
 - injected shell metacharacters or instructions in transcripts that reach rendered text: 0.
 
-**When unsure.** No suggestion. The user sees "where the fix belongs: unknown. Label it: `blackbelt label --owner`."
+**When unsure.** No suggestion. The user sees "where the fix belongs: unknown. Label it: `blackbelt label --owner`." Under `abstain_inventory_unreadable`, the message names the unreadable path instead of asking for a label.
 
 **What the report card alone loses without this.** Tailored suggestions for mistakes the router abstains on. The report card keeps no model by decision.
 
@@ -345,6 +346,7 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 
 1. Should goals routed outside Knowledge still get Knowledge training in 0.1? Recommended: yes, and measure.
 2. Should the first token of `cmd_head` gain an allowlisted second token (for example `npm test`) to sharpen the Loop rule? Recommended: later, as an additive optional field.
+3. Should state-template suggestions (CI, pre-commit, lint) come with linked outcome evidence? Recommended: later. v1 has none, because suggestions need replay evidence.
 
 ## 10. Facts to check before building
 
@@ -352,5 +354,6 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 - Whether transcripts record a hook block.
 - Permission rule syntax for paths and commands.
 - All settings levels, and plugin hook files.
+- Git worktree layout (`gitdir`/`commondir`).
 - Codex enforcement config.
 - The quoted findings against the full texts.
