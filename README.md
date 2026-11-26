@@ -65,7 +65,7 @@ Diagnostic tools show what is wrong with your agent today. He is the coach: he w
 1. **intake.** `npx blackbelt report` reads the last 30 days: corrections, recurring mistakes, rules that never fired, an estimated belt per type of work. Free, local, no setup.
 2. **plan.** A development plan per agent: what to learn next, in order.
 3. **drills.** Built from your agent's own recurring mistakes. He runs them.
-4. **progress.** Measured against your corrections, reverts and CI. A change that does not beat the noise floor never reaches you.
+4. **progress.** The same mistake, less often: counted in your corrections, reverts and CI. A change that does not beat the noise floor never reaches you.
 5. **you adopt.** `blackbelt adopt <change>`. One command. `blackbelt rollback` takes it back.
 6. **he adopts alone** (0.2). Reversible changes only, after a sealed exam your agent never sees.
 7. **belts earn autonomy** (0.3). Black belt, for irreversible work, comes later, with a safety net.
@@ -199,6 +199,12 @@ Whether rules help at all is an open question. In one study, context files did n
 
 He shows the numbers. Nothing changes without them.
 
+A rule is advice. Some mistakes need a check that runs.
+
+For each mistake that keeps coming back, he says where the fix belongs: the model, its tools and hooks, the checks and CI, the workflow, the agent's memory, or its rules and skills. Not sure? He says so.
+
+When the fix is a hook or a check, he writes it out, with how often it would have fired in your last 30 days, and how often on that mistake. You add it. He never installs it. ([ADR-0003](docs/adr/0003-owner-layers.md))
+
 ## honest numbers
 
 - Every number shows its n and a 95% interval.
@@ -266,7 +272,7 @@ Single agent, subagents, a whole crew. No roles assumed. No file layout assumed.
 
 ## roadmap
 
-- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause; report-only rule checks: contradicted rules ([#18](https://github.com/thomas-moerman/blackbelt/issues/18)), his own track record ([#19](https://github.com/thomas-moerman/blackbelt/issues/19)), a rule-wording label ([#20](https://github.com/thomas-moerman/blackbelt/issues/20)), an unsealed context check ([#21](https://github.com/thomas-moerman/blackbelt/issues/21)).
+- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause; report-only rule checks: contradicted rules ([#18](https://github.com/thomas-moerman/blackbelt/issues/18)), his own track record ([#19](https://github.com/thomas-moerman/blackbelt/issues/19)), a rule-wording label ([#20](https://github.com/thomas-moerman/blackbelt/issues/20)), an unsealed context check ([#21](https://github.com/thomas-moerman/blackbelt/issues/21)); where each fix belongs, with hook or check suggestions as text ([ADR-0003](docs/adr/0003-owner-layers.md)).
 - **0.2, he adopts alone:** a sealed exam your agent never sees; he adopts reversible changes on his own; once a month, in a sealed exam week, he asks whether he would hire your agent again; a foundation memo, where he questions the target itself.
 - **0.3, earned belts:** belts unlock autonomy, yellow to brown; group ablation tests which rules earn their place.
 - **0.4+:** black belt for irreversible work, with a safety net.
