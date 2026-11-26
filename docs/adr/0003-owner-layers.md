@@ -32,7 +32,7 @@ The coach finds the mistakes an agent repeats, and in 0.1 it can only answer the
 
 In a small test built from one user's corrections (19 tasks, 29 checks, six models), agents met 31.6% of the preferences with no rules, 54.0% with the relevant rules as text, and 70.1% when those rules also carried explicit criteria that code or a model checked during execution (arXiv 2606.13174). Claude Code's documentation says CLAUDE.md is context, not enforced configuration. It points to a PreToolUse hook to block an action whatever the model decides, and to a hook for an instruction that must run at a specific point.
 
-There is also a counterweight. In one study of changes an agent proposed after its own sessions, only 9 of 38 proposed executable checks could report a failure in that environment as written; most of the others needed missing tools or were commit hooks in sessions that never committed. In the same study's seven informative tests of implemented changes, none of them a lint or commit check, two stopped the targeted action, one reduced it and four showed no reduction (arXiv 2610.34938). Attributing a failure to a component is also imperfect: on 40 worked examples, four model judges matched the human label for the failing interaction and component 75 to 80% of the time (Cohen's kappa 0.70 to 0.76), in a taxonomy different from the layers used here (arXiv 2607.28802). So a suggestion needs evidence, and the router must be allowed to say "I don't know".
+There is also a counterweight. In one study of changes an agent proposed after its own sessions, only 9 of 38 proposed executable checks could report a failure in that environment as written; most of the others needed missing tools or were commit hooks in sessions that never committed. In the same study's seven informative tests of implemented changes, none of them a lint or commit check, two stopped the targeted action, one reduced it and four showed no reduction; one of the two that stopped the action was a line in CLAUDE.md (arXiv 2610.34938). Attributing a failure to a component is also imperfect: on 40 worked examples, four model judges matched the human label for the failing interaction and component 75 to 80% of the time (Cohen's kappa 0.70 to 0.76), in a taxonomy different from the layers used here (arXiv 2607.28802). So a suggestion needs evidence, and the router must be allowed to say "I don't know".
 
 The constitution stays as it is: the coach never writes permissions, hooks, tool or harness settings, or the agent's own memory (ADR-0002 §3.1). This ADR adds a diagnosis and a suggestion. It adds no write path.
 
@@ -163,6 +163,7 @@ interface EnforcementItem {
              event?: "pre_tool" | "post_tool" | "stop" | "commit" | "push" | "ci" };
   path: string; anchor: string;  // file and JSON path or job/step name
   status: "ok" | "unreadable";
+  reason?: string;               // fixed reason code when unreadable
 }
 interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<EnforcementItem[]> }
 ```
@@ -170,12 +171,18 @@ interface EnforcementSource { id: string; discover(ctx: DetectContext): Promise<
 - **v1 sources:**
   - Claude Code settings at every level: only the `hooks` and `permissions` keys;
   - git hooks (non-sample files in `.git/hooks`, `core.hooksPath`, and the usual hook managers' config files);
-  - GitHub Actions `run:` steps (first token only);
+  - GitHub Actions `run:` steps (command head only);
   - linter and formatter config files (presence only);
   - the manifest (`coach.rules.json` gains `enforcement: [...]`), which is how any other setup declares its checks.
-- **Never read or kept:** settings keys outside an allowlist (`env`, key helpers and the like), hook command bodies beyond their first token, and workflow secrets. A test plants canaries in those places and asserts that none reaches the store or the output.
+- **Command head** (hook commands and workflow `run:` steps): skip leading `NAME=value` assignments, `env` with its arguments, and `sudo` and `exec` wrappers; then keep only the basename of the command. It must match the strict character set and pass the secret scan, or it is dropped.
+- **Reading is passive:**
+  - an unreadable file keeps its path and a fixed reason code, never the parser's message;
+  - symlinks that leave the scanned root are not followed;
+  - YAML is loaded with a safe, schema-less loader;
+  - git config is only parsed, or read with `git config --get`. `git status` and `git diff` are never run on a scanned repository, because planted config can run code.
+- **Never read or kept:** settings keys outside an allowlist (`env`, key helpers and the like), hook command and `run:` step text beyond the command head, and workflow secrets. A test plants canaries in those places, as `X=canary cmd` and `env X=canary cmd` in a hook and in a `run:` step, and in a malformed settings file, and asserts that none reaches the store or the output.
 - **Stored** as `inventory/<setup>/<date>.json` (matchers only), so a later intake can tell when a suggestion was adopted (§3.4).
-- **Report panel:** "checks found: 3 hooks, 12 permission rules, 1 CI workflow, 2 linters", with unreadable files listed by path.
+- **Report panel:** "checks found: 3 hooks, 12 permission rules, 1 CI workflow, 2 linters", with unreadable files listed by path and reason code.
 
 ### 3.4 Suggestions outside Knowledge: text only, with replay evidence
 
@@ -273,7 +280,9 @@ Unchanged (ADR-0002 §3.1 B). Suggestions for `harness`, `loop` and `graph` are 
 | Threat | Control | Detection |
 |---|---|---|
 | Transcript content shapes a rendered script that the user pastes (command injection) | strict character set for parameters, quoted rendering, no `eval`, injection fixtures | rejected suggestions counted |
-| Secrets in settings reach the store | key allowlist in the parsers; first token only | canary test over store and output |
+| Secrets in settings reach the store | key allowlist in the parsers; command head only | canary test over store and output |
+| Inline env assignment in a hook command or run step reaches the store | strip assignments and wrappers, secret-scan the head | canary test |
+| Parser error text or a symlinked settings file leaks content | reason codes only, no symlink following | malformed-file canary |
 | The agent fakes compliance to look enforced | routing reads behaviour, not claims; recurrence is the measure | recurrence flat while compliance rises |
 | A suggestion over-blocks and the user turns enforcement off | "elsewhere" count and warning | suggestions removed again from a later inventory |
 
