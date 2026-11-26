@@ -44,6 +44,8 @@
 
 <sub>Example. Your numbers will come from your own transcripts.</sub>
 
+Other tools add rules; blackbelt checks whether they work on your own work, and tells you when it can't tell.
+
 </div>
 
 <a id="install"></a>
@@ -146,7 +148,7 @@ Free and local, always. `--share` will write one HTML page with numbers only. `b
   </picture>
 </p>
 
-One belt per agent and type of work. Your agent can be a green belt in docs and a white belt in infra. Up one belt at a time, on evidence he did not write. Down at once when something breaks.
+An entrustment ladder, not proof of skill. One belt per agent and type of work: green in docs, white in infra. Up one belt at a time, on evidence he did not write. Down at once when something breaks.
 
 <!-- generated:belts -->
 | belt | your agent may |
@@ -184,11 +186,18 @@ Stripes show how close the next belt is. One serious incident: straight back to 
 
 ## he grades the rules too
 
-Most tools grade the agent against your rules. He grades the rules.
+The loop is inspired by Argyris & Schön's double-loop learning ([the 1978 book](https://openlibrary.org/books/OL4565877M)): when a mistake comes back, question the rule, not only the work.
 
-A rule that never fires is dead weight in every prompt. A rule that fires and changes nothing measurable is a guess.
+Whether rules help at all is an open question. In one study, context files did not generally improve coding agents' success rates, and they raised the cost ([Gloaguen et al., 2026](https://arxiv.org/abs/2602.11988)).
 
-He finds both. He shows the numbers. Nothing changes without them.
+0.1 (in progress), report only:
+
+- **contradicted rules.** You keep correcting what a rule asks for: the rule may be wrong. You keep restating a rule: it is ignored, and may need to be a hook or a test. Candidates, never verdicts. ([#18](https://github.com/thomas-moerman/blackbelt/issues/18))
+- **his own track record.** Every change you adopted: held, rolled back, followed by worse outcomes, or unknown. Labelled "observational, no control group". ([#19](https://github.com/thomas-moerman/blackbelt/issues/19))
+- **rule wording.** How many rules say "don't", how many say "do". A label, not advice: one preprint saw wording matter, and its authors call that suggestive ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)). ([#20](https://github.com/thomas-moerman/blackbelt/issues/20))
+- **does your context earn its place.** Replay drills with your rules and without them. An unsealed estimate until the sealed exam (0.2), and "inconclusive" when he can't tell. ([#21](https://github.com/thomas-moerman/blackbelt/issues/21))
+
+He shows the numbers. Nothing changes without them.
 
 ## honest numbers
 
@@ -257,9 +266,9 @@ Single agent, subagents, a whole crew. No roles assumed. No file layout assumed.
 
 ## roadmap
 
-- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause.
-- **0.2, he adopts alone:** a sealed exam your agent never sees; he adopts reversible changes on his own; once a month he asks whether he would hire your agent again.
-- **0.3, earned belts:** belts unlock autonomy, yellow to brown; group ablation proves rules alive or dead.
+- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause; report-only rule checks: contradicted rules ([#18](https://github.com/thomas-moerman/blackbelt/issues/18)), his own track record ([#19](https://github.com/thomas-moerman/blackbelt/issues/19)), a rule-wording label ([#20](https://github.com/thomas-moerman/blackbelt/issues/20)), an unsealed context check ([#21](https://github.com/thomas-moerman/blackbelt/issues/21)).
+- **0.2, he adopts alone:** a sealed exam your agent never sees; he adopts reversible changes on his own; once a month, in a sealed exam week, he asks whether he would hire your agent again; a foundation memo, where he questions the target itself.
+- **0.3, earned belts:** belts unlock autonomy, yellow to brown; group ablation tests which rules earn their place.
 - **0.4+:** black belt for irreversible work, with a safety net.
 
 ## questions
