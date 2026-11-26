@@ -44,6 +44,8 @@
 
 <sub>Example. Your numbers will come from your own transcripts.</sub>
 
+Other tools add rules; blackbelt checks whether they work on your own work, and tells you when it can't tell.
+
 </div>
 
 <a id="install"></a>
@@ -63,7 +65,7 @@ Diagnostic tools show what is wrong with your agent today. He is the coach: he w
 1. **intake.** `npx blackbelt report` reads the last 30 days: corrections, recurring mistakes, rules that never fired, an estimated belt per type of work. Free, local, no setup.
 2. **plan.** A development plan per agent: what to learn next, in order.
 3. **drills.** Built from your agent's own recurring mistakes. He runs them.
-4. **progress.** Measured against your corrections, reverts and CI. A change that does not beat the noise floor never reaches you.
+4. **progress.** The same mistake, less often: counted in your corrections, reverts and CI. A change that does not beat the noise floor never reaches you.
 5. **you adopt.** `blackbelt adopt <change>`. One command. `blackbelt rollback` takes it back.
 6. **he adopts alone** (0.2). Reversible changes only, after a sealed exam your agent never sees.
 7. **belts earn autonomy** (0.3). Black belt, for irreversible work, comes later, with a safety net.
@@ -146,7 +148,7 @@ Free and local, always. `--share` will write one HTML page with numbers only. `b
   </picture>
 </p>
 
-One belt per agent and type of work. Your agent can be a green belt in docs and a white belt in infra. Up one belt at a time, on evidence he did not write. Down at once when something breaks.
+An entrustment ladder, not proof of skill. One belt per agent and type of work: green in docs, white in infra. Up one belt at a time, on evidence he did not write. Down at once when something breaks.
 
 <!-- generated:belts -->
 | belt | your agent may |
@@ -184,11 +186,24 @@ Stripes show how close the next belt is. One serious incident: straight back to 
 
 ## he grades the rules too
 
-Most tools grade the agent against your rules. He grades the rules.
+His training loop is inspired by Argyris & Schön's double-loop learning ([the 1978 book](https://openlibrary.org/books/OL4565877M)): when a mistake comes back, question the rule, not only the work.
 
-A rule that never fires is dead weight in every prompt. A rule that fires and changes nothing measurable is a guess.
+Whether rules help at all is an open question. In one study, context files did not generally improve coding agents' success rates, and they raised the cost ([Gloaguen et al., 2026](https://arxiv.org/abs/2602.11988)). A preprint reports modest evidence the other way: rule files raised pass rates, random rules as much as curated ones ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)).
 
-He finds both. He shows the numbers. Nothing changes without them.
+0.1 (in progress), report only. The intake lists the rules that never fired. Also:
+
+- **contradicted rules.** You keep correcting what a rule asks for: the rule may be wrong. You keep restating a rule: it may be ignored, and may need to be a hook or a test. Candidates, never verdicts. ([#18](https://github.com/thomas-moerman/blackbelt/issues/18))
+- **his own track record.** Every change you adopted: held, rolled back, followed by worse outcomes, or unknown. Labelled "observational, no control group". ([#19](https://github.com/thomas-moerman/blackbelt/issues/19))
+- **rule wording.** How many rules say "don't", how many say "do". A label, not advice: one preprint saw "don't" rules help and "do" rules hurt in a small rule set, and its authors call that suggestive ([Zhang et al., 2026](https://arxiv.org/abs/2604.11088)). ([#20](https://github.com/thomas-moerman/blackbelt/issues/20))
+- **does your context earn its place.** Replay drills with your rules and without them. An unsealed estimate until the sealed exam (0.2), and "inconclusive" when he can't tell. ([#21](https://github.com/thomas-moerman/blackbelt/issues/21))
+
+He shows the numbers. Nothing changes without them.
+
+A rule is advice. Some mistakes need a check that runs.
+
+For each mistake that keeps coming back, he says where the fix belongs: the model, its tools and hooks, the checks and CI, the workflow, the agent's memory, or its rules and skills. Not sure? He says so.
+
+When the fix is a hook or a check, he writes it out, with how often it would have fired in your last 30 days, and how often on that mistake. You add it. He never installs it. ([ADR-0003](docs/adr/0003-owner-layers.md))
 
 ## honest numbers
 
@@ -257,9 +272,9 @@ Single agent, subagents, a whole crew. No roles assumed. No file layout assumed.
 
 ## roadmap
 
-- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause.
-- **0.2, he adopts alone:** a sealed exam your agent never sees; he adopts reversible changes on his own; once a month he asks whether he would hire your agent again.
-- **0.3, earned belts:** belts unlock autonomy, yellow to brown; group ablation proves rules alive or dead.
+- **0.1, you hold the pen** (in progress): intake report card, estimated belts, a plan per agent, drills from your own mistakes, changes you adopt, rollback, pause; report-only rule checks: contradicted rules ([#18](https://github.com/thomas-moerman/blackbelt/issues/18)), his own track record ([#19](https://github.com/thomas-moerman/blackbelt/issues/19)), a rule-wording label ([#20](https://github.com/thomas-moerman/blackbelt/issues/20)), an unsealed context check ([#21](https://github.com/thomas-moerman/blackbelt/issues/21)); where each fix belongs, with hook or check suggestions as text ([ADR-0003](docs/adr/0003-owner-layers.md)).
+- **0.2, he adopts alone:** a sealed exam your agent never sees; he adopts reversible changes on his own; once a month, in a sealed exam week, he asks whether he would hire your agent again; a foundation memo, where he questions the target itself.
+- **0.3, earned belts:** belts unlock autonomy, yellow to brown; group ablation tests which rules earn their place.
 - **0.4+:** black belt for irreversible work, with a safety net.
 
 ## questions

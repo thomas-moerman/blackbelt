@@ -51,6 +51,24 @@ if (/AgentLint|CodeBurn|\/insights/.test(md)) fail("readme", "a neighbouring pro
 // roadmap lists the four releases
 for (const v of ["0.1", "0.2", "0.3", "0.4"]) if (!md.includes(v)) fail("readme", `roadmap misses ${v}`);
 
+// rules checked, not proven: the line on the first screen, a sourced section, the roadmap split
+const top = md.split(/^## /m)[0];
+if (!top.includes("Other tools add rules; blackbelt checks whether they work on your own work, and tells you when it can't tell."))
+  fail("rules", "rules line missing from the first screen");
+if (/\bproves\b/i.test(top)) fail("rules", "first screen says 'proves'");
+const section = (title) => md.split(/^## /m).find((s) => s.startsWith(`${title}\n`)) ?? "";
+const grades = section("he grades the rules too");
+for (const s of ["issues/18", "issues/19", "issues/20", "issues/21", "arxiv.org/abs/2602.11988", "arxiv.org/abs/2604.11088",
+  "openlibrary.org/books/OL4565877M", "double-loop", "unsealed estimate", "can't tell", "observational, no control group"])
+  if (!grades.includes(s)) fail("rules", `'he grades the rules too' misses: ${s}`);
+if (!/entrustment ladder/.test(section("the belts")) || !/not proof of skill/.test(section("the belts")))
+  fail("rules", "belts not described as an entrustment ladder, not proof of skill");
+const release = (v) => section("roadmap").split("\n").find((l) => l.startsWith(`- **${v},`)) ?? "";
+for (const n of [18, 19, 20, 21])
+  if (!release("0.1").includes(`issues/${n}`)) fail("rules", `roadmap 0.1 misses #${n}`);
+for (const s of ["sealed exam week", "foundation memo"])
+  if (!release("0.2").includes(s)) fail("rules", `roadmap 0.2 misses: ${s}`);
+
 if (fails.length) {
   console.error(fails.map((f) => `FAIL ${f}`).join("\n"));
   console.error(`${fails.length} failure(s)`);
