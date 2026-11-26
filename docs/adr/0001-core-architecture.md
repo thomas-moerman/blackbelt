@@ -2,25 +2,27 @@
 
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
+- Amended: 2026-11-26 (citations scoped, foundations reworded; #23).
 - Related: `docs/research/ingest-formats.md` (transcript and trace formats).
 - Supersedes: none (first ADR).
 
 Naming. The product is "the coach". Its command is `blackbelt`. Its home is `~/.blackbelt/` (it renames with the product), overridable with `BLACKBELT_HOME`. The "coached setup" is whatever agents the user runs. A "setup" is one detected source: an adapter plus a root.
 
 Research cited:
-- R-FMT: `docs/research/ingest-formats.md`.
-- R-GG: "Who Grades the Grader", arXiv 2607.12790. Evolved graders collapse to always-pass without a fixed anchor.
-- R-RRSI: arXiv 2609.24972. Measured noise floor, leakage critic, complexity/cost gate, paired task-level bootstrap.
-- R-NOISE: arXiv 2602.07150. Agent evals vary 2-6 points from run to run.
-- R-ACE: arXiv 2510.04618. Itemised memory, deterministic merge, per-item counters; no full LLM rewrites.
-- R-SEAL: arXiv 2607.24300. Sealed audit; the agent sees accept/reject only.
-- R-CHK: arXiv 2611.13709. About 71% of generated rule checkers were correct.
-- R-LING: arXiv 2507.23158. LLM correction detection: 81% accuracy on sparse sets, 42% on dense.
-- R-HOLD: reusable holdout (Dwork et al. 2015). To verify.
+- R-FMT: `docs/research/ingest-formats.md`. (checked 2026-11-26 for the claims cited here; its own sources dated 2026-11-24)
+- R-GG: "Who Grades the Grader? Co-Evolving Evaluation Metrics and Skills for Self-Improving LLM Agents", [arXiv 2607.12790](https://arxiv.org/abs/2607.12790) (v2, 2026-07-30). In one ablation (report generation, three seeds, one model family: Claude), removing the anchor guards that tie metric selection to a ten-item anchor collapsed the evolved grader into one that passed almost everything. Not a claim about evolved graders in general. (checked 2026-11-26)
+- R-RRSI: "RRSI: Regularized Recursive Self-Improvement of Agent Harnesses", [arXiv 2609.24972](https://arxiv.org/abs/2609.24972) (v3, 2026-10-04). Estimates a noise band from repeated runs of the unchanged base, screens diffs with an LLM leakage critic and gates cost against score gain; its paired task-level bootstrap reports final gains and does not accept edits. (checked 2026-11-26)
+- R-NOISE: "On Randomness in Agentic Evals", [arXiv 2602.07150](https://arxiv.org/abs/2602.07150) (v3, 2026-03-25). Single-run pass@1 on SWE-bench Verified (500 tasks) ranged over 2.2 to 6.0 points across 10 runs of each of 12 configurations (three open models, two scaffolds, two temperatures). That noise is larger with a few dozen drills is our inference, not the paper's result. (checked 2026-11-26)
+- R-ACE: "Agentic Context Engineering: Evolving Contexts for Self-Improving Language Models", [arXiv 2510.04618](https://arxiv.org/abs/2510.04618) (v3, 2026-03-29; ICLR 2026). Itemised context, delta updates merged by non-LLM logic, per-item helpful/harmful counters; no full rewrites. (checked 2026-11-26)
+- R-SEAL: "Self-Authored Verification Is Unreliable in Heuristic Self-Improving Agents", [arXiv 2607.24300](https://arxiv.org/abs/2607.24300) (v1, 2026-07-27). On Atari policy programs (not coding), a hidden audit the agent cannot author or inspect, returning only accept or reject, mostly beat unprotected self-testing. A variant that showed numeric audit scores after a rejection did no better, and mostly worse, than accept/reject only. Leakage through repeated accept/reject answers is not analysed; see R-HOLD. (checked 2026-11-26)
+- R-CHK: "Do They Do as They Are Told? Investigating Coding Agents' Adherence to Explicit Instructions in Context Files", [arXiv 2611.13709](https://arxiv.org/abs/2611.13709) (v1, 2026-11-10). In a manual sample, 71% (67/94) of generated rule-checker scripts that had already passed automated fixture and agreement filters implemented their instruction correctly (one rater, a 14B open model as generator). (checked 2026-11-26)
+- R-LING: Liu, Zhang, Choi, "User Feedback in Human-LLM Dialogues: A Lens to Understand Users But Noisy as a Learning Signal", EMNLP 2025, [arXiv 2507.23158](https://arxiv.org/abs/2507.23158) (v2, 2025-10-04). GPT-4o-mini detecting implicit user feedback (positive or negative) in general chat logs reached 81% binary accuracy on a sparse set and 42% on densely annotated conversations; coding-agent corrections were not tested. (checked 2026-11-26)
+- R-HOLD: Dwork et al., "The reusable holdout: Preserving validity in adaptive data analysis", Science 349(6248), 2015, https://doi.org/10.1126/science.aaa9375; companion by the same authors, "Generalization in Adaptive Data Analysis and Holdout Reuse", [arXiv 1506.02629](https://arxiv.org/abs/1506.02629) (v2, 2015-09-25; NeurIPS 2015). Adaptive reuse can overfit a holdout, and limiting what each answer reveals slows this. (checked 2026-11-26: Science paper abstract only; companion read in full)
+- Argyris, C. & Schön, D. A., Organizational Learning: A Theory of Action Perspective (Addison-Wesley, 1978). A standard reference for double-loop learning, used here as inspiration. (checked 2026-11-26: catalogue record only; text not read)
 
 ## 1. Context
 
-The coach is an open-source tool that measures agent systems and improves them by double-loop learning. It challenges the target itself (evals, rules, roles, the bar), not only the output against it. It grants autonomy on evidence. It must work for any agent setup: the core assumes no roles, no flow and no file layout, and each setup plugs in through adapters.
+The coach is an open-source tool that measures agent systems and improves them with a loop inspired by Argyris & Schön's double-loop learning. It challenges the target itself (evals, rules, roles, the bar), not only the output against it. It grants autonomy on evidence. It must work for any agent setup: the core assumes no roles, no flow and no file layout, and each setup plugs in through adapters.
 
 It ships as a Claude Code plugin around a small harness-agnostic core (plain files plus a CLI), in TypeScript, run via npx. Statistics and the report card are deterministic code. LangGraph.js is used only for the periodic cycle.
 
@@ -41,7 +43,7 @@ Transcript formats are undocumented and change per version. Claude Code deletes 
 3. **Privacy by construction (data rules).** The coach is local only. Content leaves the machine only with explicit consent. Share output is aggregates-only by type, not by convention.
 4. **First 60 seconds.** No setup, no network, no cost.
 5. **Deterministic wherever the answer should be the same twice.** This covers statistics, the report, gates, the ledger and memory merges.
-6. **Proven before applied, and reversible always.**
+6. **Tested before applied, and reversible always.**
 7. **The smallest system that ships the v1 blocks in order.** Contracts for later phases are fixed now so those phases need no redesign. Their implementation is deferred.
 
 All options are costed on complexity, cost per run and per month, security and data protection, operations, latency, and how hard they are to reverse. Prices are estimates until checked.
@@ -211,7 +213,7 @@ interface RuleSource {
 - Firing evidence, strongest first (R-FMT):
   - an explicit load event: Claude Code `attributionSkill`, or a Skill tool call;
   - a path-gate match: the rule's globs against `tool_call.attrs.paths` in the same session;
-  - behavioural: v2, opt-in, because only about 71% of generated checkers are correct (R-CHK).
+  - behavioural: v2, opt-in, because generated checkers can be wrong even after automated filters (71% correct in one manual sample, R-CHK).
 - Always-loaded rules have no load event. Block 2a reports them as "always loaded; firing not observable on this setup", never as "never fired".
 
 ### 3.2 Layered correction detection
@@ -222,7 +224,7 @@ interface RuleSource {
   - Benefits: free and precise once filtered.
   - Costs: recall is low; most corrections are typed words, not markers.
 - **B. LLM classification only.**
-  - Costs: 42-81% accuracy (R-LING). It is not free, and it sends text off the machine, which conflicts with the zero-network first run and the local-only rule.
+  - Costs: in one study of general chats, one small model detected user feedback with 42-81% binary accuracy (R-LING); coding-agent corrections were not tested. It is not free, and it sends text off the machine, which conflicts with the zero-network first run and the local-only rule.
 - **C. Layers.** L0 markers and L1 lexicon in code by default; L2 LLM opt-in. Every layer's precision is measured on the user's own labels.
   - Costs: one small labelling step for users who want calibrated numbers.
 
@@ -413,8 +415,8 @@ share/                  generated aggregate pages
   status() -> {suites: [{id, seal_version, count, queries_left}]}
   ```
 
-  - It returns no per-task results, no task text and no failure messages (R-SEAL).
-  - Each `{suite, seal_version}` has a query budget (default 50). When the budget is spent, the suite needs refreshing. The coarse score rounding and the budget limit adaptive overfitting through repeated queries (R-HOLD; to size).
+  - It returns no per-task results, no task text and no failure messages. Unlike R-SEAL, which returns one accept/reject bit, it also returns a rounded score. R-SEAL's ablation found that showing numeric audit scores weakened its gate; the 0.05 rounding and the query budget are our untested mitigation.
+  - Each `{suite, seal_version}` has a query budget (default 50). When the budget is spent, the suite needs refreshing. Adaptive reuse can overfit a holdout, and limiting what each answer reveals slows this (R-HOLD); the budget of 50 and the 0.05 rounding are our choices and carry no guarantee (to size).
   - The oracle runs tasks through `adapter.run` in a temporary workspace and an isolated config dir. Sealed-run transcripts are written only inside `sealed/`. They never reach the user's harness history, the coach's ingest or the coached agent's memory features.
   - Checkers run in the oracle's own temporary copy, outside the agent's workspace.
 - **G3, breach detection, harness-agnostic.** Every ingest scans tool calls and text in transcripts for:
@@ -438,7 +440,7 @@ share/                  generated aggregate pages
 
 - The coach may add or retire sealed items. Every change is a ledger entry (3.6).
 - The coach's model steps never receive sealed content: only the oracle process touches it, so no rule can carry it out.
-- The leakage critic (R-RRSI) is deterministic and runs inside the oracle. It rejects any proposed patch that contains a canary, has a normalised 8-gram overlap of 3 or more with any sealed item, or names an identifier unique to sealed tasks.
+- Our leakage critic is a deterministic variant of the idea in R-RRSI, whose critic is an LLM reading each candidate diff. It runs inside the oracle and rejects any proposed patch that contains a canary, has a normalised 8-gram overlap of 3 or more with any sealed item, or names an identifier unique to sealed tasks.
 
 ### 3.6 Autonomy model, versioning, rollback, pause, world signals
 
@@ -452,13 +454,15 @@ Phases 4-5. This ADR fixes the contracts; ADR-0002 sets the numbers before the b
 
 **Ladder per work type.** These rungs govern the coached agents. Each rung says who must approve before an effect.
 
+Belts name these rungs, from white (R0) to black (R4) (ADR-0002 §3.5). Belts are an entrustment ladder: trust granted per kind of work from outside evidence. They are not a Dreyfus competence model.
+
 | Rung | Name | Approval |
 |---|---|---|
 | R0 | watch | measure only |
 | R1 | propose | a human approves before effect |
 | R2 | act-with-review | effect first, human review within a veto window |
 | R3 | autonomous | sampled audit by the coach |
-| R4 | Sensitive autonomous | only for irreversible types, and only with a proven safety net |
+| R4 | Sensitive autonomous | only for irreversible types, and only with a verified safety net |
 
 - R4 needs adapter capabilities `dry_run`, `canary` and `backup`, plus a restore drill passed within the last 30 days.
 - When the adapter lacks these, R4 shows "not available on this setup". It is never approximated.
@@ -555,11 +559,11 @@ Attribution is deterministic by files and rules touched within the window. Ambig
   - HIRE when the CI lower bound is above the noise floor and the cost gate passes;
   - NO HIRE when the CI upper bound is below the noise floor;
   - otherwise INCONCLUSIVE, with the minimum detectable effect stated;
-  - the cost gate: a candidate that uses more than 25% more tokens per task must beat the incumbent by twice the noise floor (R-RRSI).
+  - the cost gate: a candidate that uses more than 25% more tokens per task must beat the incumbent by twice the noise floor (our rule, motivated by R-RRSI, which instead allows cost growth that rises with score gain above its noise band).
 
 **Statistics (block 2b, pure code in `src/stats`).**
 
-- **Noise floor** (R-RRSI, R-NOISE).
+- **Noise floor.** Measuring the unchanged base is from R-RRSI, and repeated runs are motivated by R-NOISE; the estimator is ours.
   - Measure it with an A/A test: the unchanged base, two arms of k=3 runs per task.
   - NF is the upper 95% bound of |mean paired difference| from a task-level bootstrap with B = 10,000 and a recorded seed.
   - Store it per `(suite version, model id, harness version)`. A change in any of these invalidates it.
@@ -592,7 +596,7 @@ Attribution is deterministic by files and rules touched within the window. Ambig
 
 ### 3.8 The coach is the agent
 
-**Outcome.** The coached setup measurably improves, and it earns autonomy per work type. Every change is proven, versioned and reversible.
+**Outcome.** The coached setup measurably improves, and it earns autonomy per work type. Every change is tested, versioned and reversible.
 
 **Triggers:**
 - `blackbelt cycle`, run by hand or by the user's cron, systemd or launchd (the coach installs no daemon);
@@ -664,7 +668,7 @@ State holds references, not transcript text.
   - `experiments.jsonl`: every experiment and its result; kept until purged;
   - `noise_floors.jsonl`;
   - `playbook.jsonl`: ACE-style items `{id, kind: lesson|hypothesis|procedure, text <= 300 chars, helpful, harmful, last_used, source_runs, created_by}`.
-- **Playbook writes** (R-ACE):
+- **Playbook writes.** Item structure and delta merge follow R-ACE; the MinHash merge, the code-only writer and the retirement thresholds are ours.
   - only the `remember` code node writes;
   - model-drafted items pass validation and the secret scan first;
   - merging is deterministic: a normalised-text hash, or MinHash similarity ≥ 0.8, merges counters;
@@ -797,7 +801,7 @@ Model nodes are tested on recorded fixtures.
 - The content-free canonical store is the natural unit for later fleet aggregation, so this moves toward the paying audience.
 
 **Negative:**
-- We own a schema and one mapping per harness version (R-FMT: nothing is stable). That needs fixture upkeep per release.
+- We own a schema and one mapping per harness version (R-FMT: no format is a documented stable schema). That needs fixture upkeep per release.
 - The L1 lexicon is English-only.
 - The seal against a same-user agent is detect-and-wall, not proof. The strength label says so.
 - A EUR 10 cap makes paid results slow on large tasks.
@@ -841,7 +845,7 @@ What would change the design:
 
 ## 11. Facts to check before building
 
-Eight items to check: Claude Code non-interactive marker, session env var and runner isolation; Codex markers and runner; OTLP shapes; per-task token costs and prices; reusable-holdout sizing; LangGraph.js checkpointer; Node LTS dates; arXiv citations.
+Seven items to check: Claude Code non-interactive marker, session env var and runner isolation; Codex markers and runner; OTLP shapes; per-task token costs and prices; reusable-holdout sizing; LangGraph.js checkpointer; Node LTS dates.
 
 ---
 

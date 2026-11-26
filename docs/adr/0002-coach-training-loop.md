@@ -3,6 +3,7 @@
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
 - Amended: 2026-11-25 (part of the double loop moves into 0.1: research list, §3.2, §3.6, §3.7; #17).
+- Amended: 2026-11-26 (citations scoped, foundations reworded, screening node renamed `screen`; #23).
 - Related: ADR-0001 (Accepted); `docs/research/ingest-formats.md` (R-FMT).
 - Amends ADR-0001:
   - §6 phasing, replaced by §3.7 here;
@@ -21,35 +22,33 @@ Terms.
 - **Write surface:** the files the coach may change for a trainee.
 - **Intervention:** one proposed change to a write surface. It consists of context items.
 - **Drill:** a small task with a deterministic checker, derived from a recurring mistake.
-- **Practice and exam drills:** the two disjoint splits of a goal's drills.
+- **Screen and exam drills:** the two disjoint splits of a goal's drills.
 - **Incumbent:** the trainee's current context. **Candidate:** the incumbent plus one intervention.
 - **Work item:** defined in §3.5.
 
 Research cited (ADR-0001's list, plus):
-- **R-VOY:** Voyager, arXiv 2305.16291 (to verify). It has three parts:
-  - an automatic curriculum that proposes tasks at the frontier of current ability;
-  - a library of verified, reusable skills;
-  - iterative refinement from environment feedback and self-verification.
-- **Small-n statistics:** the Wilson score interval, and the exact paired sign-flip (randomisation) test. Both are standard.
-- **Added by the 2026-11-25 amendment** (links and dates checked 2026-11-25):
-  - Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?, [arXiv 2602.11988](https://arxiv.org/abs/2602.11988) (v3, 2026-09-29)
-  - TellOnce: Correcting Coding Agents Once, Improving Their Future Actions, [arXiv 2606.13174](https://arxiv.org/abs/2606.13174) (v2, 2026-10-25)
-  - Self-Improving AI Coding Agents Through Accumulated Behavioral Rules: A Closed-Loop Framework, [arXiv 2607.13091](https://arxiv.org/abs/2607.13091) (2026-07-13)
-  - **R-GG:** Who Grades the Grader? Co-Evolving Evaluation Metrics and Skills for Self-Improving LLM Agents, [arXiv 2607.12790](https://arxiv.org/abs/2607.12790) (v2, 2026-07-30)
-  - **R-SEAL:** Self-Authored Verification Is Unreliable in Heuristic Self-Improving Agents, [arXiv 2607.24300](https://arxiv.org/abs/2607.24300) (2026-07-27)
-  - Guardrails Beat Guidance: A Large-Scale Study of Rules, Skills, and Persistent Configuration for Coding Agents, [arXiv 2604.11088](https://arxiv.org/abs/2604.11088) (v2, 2026-05-28)
-  - Skill Issue: Lessons from Optimizing Repository SKILLs for Coding Agents, [arXiv 2609.12742](https://arxiv.org/abs/2609.12742) (2026-09-11)
-  - **R-NOISE:** On Randomness in Agentic Evals, [arXiv 2602.07150](https://arxiv.org/abs/2602.07150) (v3, 2026-03-25)
-  - Can Coding Agents Sustain Continual Evolution without Forgetting?, [arXiv 2611.03219](https://arxiv.org/abs/2611.03219) (2026-11-02)
-  - Cortex: Measurement-Gated Evolution and Pruning of Coding-Agent Skills and Rules, [arXiv 2610.14216](https://arxiv.org/abs/2610.14216) (2026-10-09)
-  - Admitted Is Not Effective: Lessons from a Notary-Gated Retrospective Loop in an Agentic Pipeline, [arXiv 2611.29727](https://arxiv.org/abs/2611.29727) (2026-11-22)
-  - **R-CHK:** Do They Do as They Are Told? Investigating Coding Agents' Adherence to Explicit Instructions in Context Files, [arXiv 2611.13709](https://arxiv.org/abs/2611.13709) (2026-11-10)
-  - Stale Instruction Files Override the Code in Coding Agents: A One-Sentence Fix, [arXiv 2610.30571](https://arxiv.org/abs/2610.30571) (2026-10-22)
-  - Why Does CLAUDE.md Keep Growing? Catastrophic Remembering in Agentic Coding, [arXiv 2608.11095](https://arxiv.org/abs/2608.11095) (v2, 2026-11-20)
+- **R-VOY:** Wang et al., "Voyager: An Open-Ended Embodied Agent with Large Language Models", [arXiv 2305.16291](https://arxiv.org/abs/2305.16291) (v2, 2023-10-19; TMLR 2024). In Minecraft with GPT-4: an LLM-proposed curriculum matched to the agent's state and progress; a library of code skills added after LLM self-verification; refinement from environment feedback, execution errors and self-verification. (checked 2026-11-26)
+- **Small-n statistics:** the Wilson score interval as given in Agresti & Coull 1998 (https://doi.org/10.1080/00031305.1998.10480550; original Wilson 1927, not read) and the exact paired sign-flip (randomisation) test, exactness under invariance per Hemerik & Goeman ([arXiv 1411.7565](https://arxiv.org/abs/1411.7565), v3). (checked 2026-11-26)
+- Argyris, C. & Schön, D. A., Organizational Learning: A Theory of Action Perspective (Addison-Wesley, 1978). A standard reference for double-loop learning, used here as inspiration. (checked 2026-11-26: catalogue record only; text not read)
+- **Added by the 2026-11-25 amendment:**
+  - Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?, [arXiv 2602.11988](https://arxiv.org/abs/2602.11988) (v3, 2026-09-29) (checked 2026-11-26)
+  - TellOnce: Correcting Coding Agents Once, Improving Their Future Actions, [arXiv 2606.13174](https://arxiv.org/abs/2606.13174) (v2, 2026-10-25) (checked 2026-11-26)
+  - Self-Improving AI Coding Agents Through Accumulated Behavioral Rules: A Closed-Loop Framework, [arXiv 2607.13091](https://arxiv.org/abs/2607.13091) (2026-07-13) (checked 2026-11-26)
+  - **R-GG:** Who Grades the Grader? Co-Evolving Evaluation Metrics and Skills for Self-Improving LLM Agents, [arXiv 2607.12790](https://arxiv.org/abs/2607.12790) (v2, 2026-07-30) (checked 2026-11-26)
+  - **R-SEAL:** Self-Authored Verification Is Unreliable in Heuristic Self-Improving Agents, [arXiv 2607.24300](https://arxiv.org/abs/2607.24300) (2026-07-27) (checked 2026-11-26)
+  - Guardrails Beat Guidance: A Large-Scale Study of Rules, Skills, and Persistent Configuration for Coding Agents, [arXiv 2604.11088](https://arxiv.org/abs/2604.11088) (v2, 2026-05-28) (checked 2026-11-26)
+  - Skill Issue: Lessons from Optimizing Repository SKILLs for Coding Agents, [arXiv 2609.12742](https://arxiv.org/abs/2609.12742) (2026-09-11) (checked 2026-11-26)
+  - **R-NOISE:** On Randomness in Agentic Evals, [arXiv 2602.07150](https://arxiv.org/abs/2602.07150) (v3, 2026-03-25) (checked 2026-11-26)
+  - Can Coding Agents Sustain Continual Evolution without Forgetting?, [arXiv 2611.03219](https://arxiv.org/abs/2611.03219) (2026-11-02) (checked 2026-11-26)
+  - Cortex: Measurement-Gated Evolution and Pruning of Coding-Agent Skills and Rules, [arXiv 2610.14216](https://arxiv.org/abs/2610.14216) (2026-10-09) (checked 2026-11-26)
+  - Admitted Is Not Effective: Lessons from a Notary-Gated Retrospective Loop in an Agentic Pipeline, [arXiv 2611.29727](https://arxiv.org/abs/2611.29727) (2026-11-22) (checked 2026-11-26)
+  - **R-CHK:** Do They Do as They Are Told? Investigating Coding Agents' Adherence to Explicit Instructions in Context Files, [arXiv 2611.13709](https://arxiv.org/abs/2611.13709) (2026-11-10) (checked 2026-11-26)
+  - Stale Instruction Files Override the Code in Coding Agents: A One-Sentence Fix, [arXiv 2610.30571](https://arxiv.org/abs/2610.30571) (2026-10-22) (checked 2026-11-26)
+  - Why Does CLAUDE.md Keep Growing? Catastrophic Remembering in Agentic Coding, [arXiv 2608.11095](https://arxiv.org/abs/2608.11095) (v2, 2026-11-20) (checked 2026-11-26)
 
 ## 1. Context
 
-blackbelt is first of all the coach that trains agents over weeks. It diagnoses, decides what to learn next, practises, measures progress against an outside standard, and challenges rules and evals: it questions the rules, not only the mistakes. This loop is inspired by Argyris & Schön's double-loop learning. The report card is the free intake and the hook. Belts are the outcome of training and the language of the autonomy ladder.
+blackbelt is first of all the coach that trains agents over weeks. It diagnoses, decides what to learn next, screens candidate changes, measures progress against an outside standard, and challenges rules and evals: it questions the rules, not only the mistakes. This loop is inspired by Argyris & Schön's double-loop learning. The report card is the free intake and the hook. Belts are the outcome of training and the language of the autonomy ladder.
 
 The coach cannot change model weights. It can change only what the agent reads: its context. It must do so for any setup, locally, within EUR 10 per cycle, with every change versioned and reversible. Verdicts come only from deterministic checks; judges are audit-only. It must not adopt on its own before the seal exists.
 
@@ -62,11 +61,11 @@ It deferred four things to this ADR: the thresholds, the estimated-belt computat
 
 ## 2. Decision drivers
 
-1. **The coach acts on the diagnosis.** A release without practice and measured adoption is a diagnostic, the category of AgentLint, CodeBurn and /insights.
-2. **Belts are graded against an outside standard (R-GG).** Evolved graders collapse without an anchor. The coach writes drills and checkers, so drills must never grade belts.
+1. **The coach acts on the diagnosis.** A release without screening and measured adoption is a diagnostic, the category of AgentLint, CodeBurn and /insights.
+2. **Belts are graded against an outside standard.** In R-GG's report-generation ablation, an evolved grader selected without its anchor guards passed almost everything. We infer that drills the coach writes must never grade belts.
 3. **Setup-agnostic.** Trainees and write surfaces come from adapters, and the core never branches on their keys.
 4. **Deterministic verdicts.**
-5. **Proven, versioned, reversible, with the seal before any autonomous adoption.**
+5. **Tested, versioned, reversible, with the seal before any autonomous adoption.**
 6. **Budget.** EUR 10 per cycle buys roughly 25-60 agent runs (estimate, §3.4). The statistics must work at small n.
 7. **Privacy (data rules).** User text stays local and is never shared.
 8. **The smallest coherent coach ships first.**
@@ -104,7 +103,7 @@ Options are costed on complexity, cost per run and per month, security, operatio
   - Security: high. Rejected.
 - **D. No writes; advice only.**
   - Benefits: zero risk.
-  - Costs: it is a diagnostic, and nothing is ever proven in the user's setup. The user loses the coach.
+  - Costs: it is a diagnostic, and nothing is ever tested in the user's setup. The user loses the coach.
 
 **Decision: B.**
 
@@ -193,7 +192,7 @@ interface ContextItem {
 
 **Decision: C.**
 
-**Outcome.** Each trainee measurably stops repeating its recurring mistakes and earns belts. Every change is proven on exam drills, versioned and reversible.
+**Outcome.** Each trainee measurably stops repeating its recurring mistakes and earns belts. Every change is tested on exam drills, versioned and reversible.
 
 **Triggers.**
 - `blackbelt train`, run by hand or by the user's cron. No daemon is installed (ADR-0001).
@@ -206,7 +205,7 @@ interface ContextItem {
 ```
 intake(C) -> review(C) -> [per trainee: coach_trainee] -> exam_week?(C, 0.2) -> report(C) -> remember(C) -> END
 coach_trainee:
-  diagnose(M) -> curriculum(C) -> drills(subgraph C+M) -> practice(subgraph, loop<=3) -> exam(C) -> decide(C)
+  diagnose(M) -> curriculum(C) -> drills(subgraph C+M) -> screen(subgraph, loop<=3) -> exam(C) -> decide(C)
      -> adopt(C; 0.1: interrupt) -> challenge(C; +M memo in 0.2) -> belts(C)
 ```
 
@@ -224,11 +223,11 @@ coach_trainee:
    - It is skipped, at no cost, when no new clusters appeared.
 4. **`curriculum`.** Scores goals, fills slots and picks the focus goal (§3.3). It writes a plan revision as a ledger commit.
 5. **`drills` (subgraph).** Episode extraction, then checker choice: code heuristics first, with M `choose_checker` only when those fail. Then validation, split and store (§3.4).
-6. **`practice` (subgraph, Voyager-style refinement, R-VOY).**
-   - `propose_intervention` (M), then `validate` (C, below), then `screen` (C: runner, k=1, on practice drills).
-   - If the practice pass rate does not rise, the failures (tool-call heads, paths, checker messages, quoted) feed the next proposal.
+6. **`screen` (subgraph, Voyager-style refinement, R-VOY).**
+   - `propose_intervention` (M), then `validate` (C, below), then `run_screen` (C: runner, k=1, on screen drills).
+   - If the screen pass rate does not rise, the failures (tool-call heads, paths, checker messages, quoted) feed the next proposal.
    - At most 3 iterations, then `no_candidate`.
-   - A goal with 0 practice drills gets one single-shot candidate per cycle and no loop on exam drills.
+   - A goal with 0 screen drills gets one single-shot candidate per cycle and no loop on exam drills.
 7. **`exam`.** Budget pre-flight first; on failure, checkpoint and end `budget_exhausted`. Then:
    - incumbent baseline: k=6 on first measure (runs 1-3 vs 4-6 give the A/A noise floor), k=3 on re-baselines. It is cached by context hash, model, harness and drill-set version.
    - candidate: k=3.
@@ -258,7 +257,7 @@ coach_trainee:
 - **ADOPT** requires all of:
   - (a) mean d ≥ NF;
   - (b) significance: for fewer than 10 drills, the exact one-sided paired sign-flip test gives p ≤ 0.05; for 10 or more, the task-level bootstrap 95% lower bound (B = 10,000, recorded seed) is above 0;
-  - (c) cost gate: more than 25% extra tokens per task requires mean d ≥ 2×NF (R-RRSI);
+  - (c) cost gate: more than 25% extra tokens per task requires mean d ≥ 2×NF (our rule, motivated by R-RRSI, which instead allows cost growth that rises with score gain above its noise band);
   - (d) retention: no retention drill drops from 3/3 to 1/3 or less, and mean d on retention ≥ -NF;
   - (e) the size gates hold;
   - (f) from 0.2, oracle accept and the seal not breached.
@@ -270,10 +269,10 @@ Why at least 5 exam drills: with n drills, the smallest exact p-value is 2^-n. F
 **NF details.**
 - NF is pooled per (trainee, model id, harness version) over every drill with an A/A measurement. The pool grows over weeks, which sharpens it.
 - NF is floored at 0.10.
-- Exam submissions are capped at 4 candidates per goal per drill-set version (R-HOLD). After that, the goal needs new exam drills.
+- Exam submissions are capped at 4 candidates per goal per drill-set version. The number is ours; R-HOLD motivates limiting reuse but gives no guarantee at this sample size. After that, the goal needs new exam drills.
 
 **Closed action set for model nodes.**
-- **Read** (quoted, provenance-tagged): ADR-0001's read tools, plus `get_plan`, `get_goal`, `get_items(trainee)`, `get_surface(trainee)` and `get_practice_result(goal, candidate?)`.
+- **Read** (quoted, provenance-tagged): ADR-0001's read tools, plus `get_plan`, `get_goal`, `get_items(trainee)`, `get_surface(trainee)` and `get_screen_result(goal, candidate?)`.
   - No tool reads exam drills. The registry holds no handle to `drills/**/exam`, and a test asserts this.
 - **Propose** (state only, no side effects):
   - `propose_goal{finding_ids, kind: fix_mistake|prune, work_type, hypothesis<=300}`
@@ -285,7 +284,7 @@ Why at least 5 exam drills: with n drills, the smallest exact p-value is 2^-n. F
   - `finish`
 
 **Guardrails in code** (in addition to ADR-0001 §3.8):
-- at most 3 practice iterations per goal per cycle;
+- at most 3 screen iterations per goal per cycle;
 - at most 1 adoption per goal and 2 per trainee per cycle, so world signals attribute cleanly;
 - at most 3 active goals, 1 new per cycle;
 - per drill run: a token cap of max(2× the original episode's tokens, 30k), EUR 0.40, and 300 s;
@@ -298,7 +297,7 @@ Why at least 5 exam drills: with n drills, the smallest exact p-value is 2^-n. F
 interface TrainState extends CycleState {          // CycleState from ADR-0001 §3.8
   trainee_queue: string[]; trainee?: string;
   plan_ref?: string; focus_goal?: string; drills_ref?: string;
-  practice: { iteration: number; candidate?: Intervention; screen?: ScreenResult[] };
+  screen: { iteration: number; candidate?: Intervention; results?: ScreenResult[] };
   exam?: ExamResult; verdict?: "ADOPT" | "REJECT" | "INCONCLUSIVE";
   pending: string[];                 // change ids awaiting `blackbelt adopt` (0.1)
   belts_delta: BeltChange[]; challenge: ChallengeFinding[];
@@ -331,7 +330,7 @@ State holds references, never transcript or drill text.
 | Situation | Coach action | User sees |
 |---|---|---|
 | Fewer than 5 validated exam drills | Goal stays `watching` | "needs 5 exam drills, has 3" |
-| No runner on this setup | Plan and drills only | "practice not available on this setup" |
+| No runner on this setup | Plan and drills only | "training not available on this setup. plan and drills still work." |
 | Drill not reproducible (incumbent passes ≥ 0.9) | Goal `watching`; drill flagged | "the agent passes this drill; the mistake is context-dependent" |
 | Inconclusive | Carry, at most 2 cycles | MDE stated |
 | Budget short | Checkpoint; resume next cycle | "this step needs EUR x" |
@@ -394,8 +393,8 @@ interface Goal {
   work_type: string; cluster_id?: string;
   title: string;                   // local only (cluster label); never in ShareModel
   evidence: { recurrence_per_100: MetricValue; occurrences: number; sessions: number; last_seen: string };
-  edge: { incumbent_practice_pass?: number; tier: "unknown"|"edge"|"beyond"|"not_reproducible" };
-  drills: { practice: number; exam: number; checker_kinds: CheckerKind[] };
+  edge: { incumbent_screen_pass?: number; tier: "unknown"|"edge"|"beyond"|"not_reproducible" };
+  drills: { screen: number; exam: number; checker_kinds: CheckerKind[] };
   interventions: { change_id: string; surface: string; verdict: "ADOPT"|"REJECT"|"INCONCLUSIVE";
                    d: number; ci: [number, number]; nf: number; n_tasks: number; k: number;
                    state: "pending"|"applied"|"rolled_back"|"rejected" }[];
@@ -420,12 +419,12 @@ interface Goal {
 - The exact conditional binomial test on the Poisson rate ratio decides: an upper 95% bound below 1 means `confirmed`.
 - Too few items means `pending`. After 4 weeks without confirmation the result is `not_shown`.
 
-**Curriculum (code, deterministic; R-VOY's frontier curriculum).**
+**Curriculum (code, deterministic; inspired by R-VOY's LLM-proposed curriculum).**
 - **Eligible goals:** clusters that qualify under ADR-0001 §3.2 (at least 3 members across at least 2 sessions), mapped to the trainee and a work type.
 - **Priority** = recurrence_per_100 × w × gap × edge × prior, where:
   - w = 2 for work types the user marks irreversible, else 1;
   - gap = 1.5 when this work type is the trainee's nearest next belt and corrected share is its binding metric, else 1;
-  - edge = 0.75 unknown, 1.0 edge (0.1 ≤ incumbent practice pass ≤ 0.9), 0.5 beyond (< 0.1), 0 not reproducible;
+  - edge = 0.75 unknown, 1.0 edge (0.1 ≤ incumbent screen pass ≤ 0.9), 0.5 beyond (< 0.1), 0 not reproducible;
   - prior = a Beta-smoothed adoption rate for the (signature class, intervention kind) pair from coach memory, clamped to [0.5, 1.5].
 - Ties are broken by goal id.
 - **Slots:** at most 3 active goals, 1 new per cycle. The focus is the top active goal whose next step fits the budget.
@@ -468,7 +467,7 @@ history    week                 W45     W46     W47     W48
   - Benefits: cheap runs, no user text after a leak check, and shareable in a future drill library.
   - Costs:
     - the model sees cluster excerpts (consent if cloud);
-    - about 71% of generated checkers are correct (R-CHK), so the reference and mistake solutions must be run;
+    - generated checkers can be wrong even after automated filters (71% correct in one manual sample, R-CHK), so the reference and mistake solutions must be run;
     - transfer to real code is uncertain.
 - **C. Template drills from a built-in fixture bank.**
   - Benefits: free and deterministic.
@@ -476,7 +475,7 @@ history    week                 W45     W46     W47     W48
 - **D. The user's own eval suites only**.
   - Costs: most users have none.
 
-**Decision.** In 0.1, A plus D where present. In 0.3, B adds cheaper practice drills while exam drills stay replay drills. C serves as fixtures for the coach's own evals.
+**Decision.** In 0.1, A plus D where present. In 0.3, B adds cheaper screen drills while exam drills stay replay drills. C serves as fixtures for the coach's own evals.
 
 **Episode extraction (code).**
 - **The episode:** from the human message before the corrected agent turn up to the correction.
@@ -501,7 +500,7 @@ history    week                 W45     W46     W47     W48
 - **Rubrics** are audit only and never decide.
 - **Parameters** come from code heuristics over cluster features (`cmd_head`, paths, `ruleId`, tool classes before and after the correction). `choose_checker` (M) is a fallback, and its output passes the same validation.
 
-**Admission (all in code; the R-GG guard against always-pass graders):**
+**Admission (all in code; our own guard against vacuous graders, motivated by R-GG's always-pass collapse):**
 1. Deterministic: the same recorded output, checked twice, gives the same verdict.
 2. Fails on the original mistake.
 3. Passes on the corrected state or trajectory when that evidence exists.
@@ -510,14 +509,14 @@ history    week                 W45     W46     W47     W48
 
 **Split.**
 - Seeded, and grouped by session, so no session spans splits.
-- Exam drills fill first, up to 5. After that, new drills alternate between practice and exam.
+- Exam drills fill first, up to 5. After that, new drills alternate between screen and exam.
 - Exam drills are immutable. They retire only with evidence: `flaky | saturated | uncorrelated_with_world | source_lost`.
 
 **Store** (`~/.blackbelt/drills/<setup>/<trainee>/<goal>/<drill_id>/`, mode 0600).
 
 ```ts
 interface Drill { schema: 1; id: string; trainee: string; goal_id: string;
-  split: "practice" | "exam"; source: "replay" | "user_suite" | "synthetic";
+  split: "screen" | "exam"; source: "replay" | "user_suite" | "synthetic";
   workspace: { repo_root: string; commit: string; state_quality: "exact" | "approximate" };
   request_ref: "request.txt";              // scrubbed (secret regex set), <= 4 KB
   checker: { kinds: CheckerKind[]; params: Record<string, unknown>; version: string };
@@ -550,7 +549,7 @@ interface Drill { schema: 1; id: string; trainee: string; goal_id: string;
 | Activity | Runs | At EUR 0.15/run | At EUR 0.30/run |
 |---|---|---|---|
 | First baseline of a goal (5 exam drills × k=6; gives NF) | 30 | 4.50 | 9.00 |
-| Practice screening (2 drills × up to 3 iterations, plus incumbent) | 8 | 1.20 | 2.40 |
+| Screening (2 drills × up to 3 iterations, plus incumbent) | 8 | 1.20 | 2.40 |
 | Candidate exam, with incumbent re-baseline k=3 when the context changed | 15-30 | 2.25-4.50 | 4.50-9.00 |
 | Retention sample (2 drills × k=3) | 6 | 0.90 | 1.80 |
 | Model nodes | n/a | ~0.30 | ~0.30 |
@@ -561,11 +560,12 @@ interface Drill { schema: 1; id: string; trainee: string; goal_id: string;
   2. open experiments, to a verdict;
   3. retention of adopted items;
   4. the focus goal;
-  5. practice for the next goal.
+  5. screening for the next goal.
 
 ### 3.5 Belts, stripes and ladder thresholds (fills ADR-0001's gap)
 
 **Mapping.** White = R0 watch, yellow = R1 propose, green = R2 act with review, brown = R3 autonomous with sampled audit, black = R4 irreversible (ADR-0001).
+- Belts are an entrustment ladder: trust granted per kind of work from outside evidence. They are not a Dreyfus competence model.
 - Belts are keyed per (trainee, work type) .
 - Black exists only for work types the user marks irreversible (ADR-0001). Reversible types top out at brown .
 
@@ -591,12 +591,12 @@ interface Drill { schema: 1; id: string; trainee: string; goal_id: string;
 | brown | ≥ 60 | ≤ 0.08 | ≤ 0.15 | 3 |
 | black | ≥ 100 (90 days) | ≤ 0.04 | ≤ 0.08 | 4, plus `dry_run`, `canary`, `backup` capabilities and a restore drill within 30 days |
 
-What the numbers mean in practice:
-- Green needs zero failures in 30 items (0/30 gives U = 0.113; 1/30 gives 0.167, which fails) and about 13% corrected or less.
+What the numbers mean:
+- Green needs zero failures in 30 items (0/30 gives U = 0.114; 1/30 gives 0.167, which fails) and about 13% corrected or less.
 - Brown needs zero failures in 60 (U = 0.060), or 1 in 80.
 - Black needs zero in 100 (U = 0.037).
 
-ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% threshold. They are replaced.
+ADR-0001's placeholders cannot be met at their minimum n: 0/20 gives U = 0.161, against a 5% threshold. They are replaced.
 
 **Who may change what.**
 - The black row and the safety net are constitution.
@@ -665,7 +665,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 **Decision: B, from 0.2.** The exam week decides things, so it needs the seal: comparing against exam drills the coach has optimised against is self-grading (R-GG, R-HOLD). The 0.1 unsealed estimate runs without the seal because it decides nothing.
 
 **How it runs.**
-- Every 4th cycle replaces practice.
+- Every 4th cycle replaces screening.
 - **Suite:** sealed exam drills of all goals (including mastered), the retention set, and the user's own suites.
 - **Arms:**
   - `current` against `week0`, the ledger snapshot at the trainee's first `train`: "is training working?";
@@ -674,7 +674,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 - **Cost:** 2 arms × k=3 × about 10 tasks = 60 runs (EUR 9-18). It spans 2 cycles when needed.
 
 **Outcomes (code).**
-- **HIRE over week0:** shown as proof of training.
+- **HIRE over week0:** shown as evidence of training.
 - **NO HIRE, or week0 better:** "he would not hire his own training".
   - The adoption bar doubles (2×NF) for 4 cycles.
   - Items adopted since week0 enter halving group ablation (ADR-0001 §3.7).
@@ -689,8 +689,8 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 
 - **A. ADR-0001 phasing (0.1 = report card).**
   - Costs: contradicts the training-loop framing.
-- **B. 0.1 = report card plus plans, no practice.**
-  - Costs: homework without proof; a diagnostic.
+- **B. 0.1 = report card plus plans, no screening.**
+  - Costs: homework that is never tested; a diagnostic.
 - **C. 0.1 = the closed loop with human adoption; seal and autonomous adoption in 0.2; earned belts in 0.3.**
 - **D. 0.1 = everything through autonomy.**
   - Costs: months later, and it ships the risky parts before anyone has used the safe ones.
@@ -701,7 +701,7 @@ ADR-0001's placeholders cannot be met: 0/20 gives U = 0.161, against a 5% thresh
 |---|---|---|
 | **0.1: the coach; you hold the pen** | ADR-0001 Phase 1 (core, 4 ingest adapters, 3 rule sources, L0/L1, `label`, report card, share, read-only plugin commands); estimated belts and stripes; `badge`; trainees and write surfaces (claude-code; codex as a read-only trainee); Claude Code runner (`shimmed`); budget meter, consent manifest, NF; replay drills, checkers, admission, split, canary scan; plans; the train graph with adopt interrupt and deterministic challenge; report-only: contradicted rules (#18), coach track record (#19), rule polarity label (#20); unsealed estimate of whether the context earns its place (#21); ledger, actuator, `adopt`, `rollback`, `pause`/`resume`; sim-trainee evals | seal and oracle, autonomous adoption, `gate check`, `hire`, sealed exam week, halving and delete proposals from group ablation (block 2b), judges, L2, synthetic drills, foundation memo, Codex runner |
 | **0.2: the sealed exam; he adopts alone** | seal G1-G4 and oracle (ADR-0001 §3.5) holding exam drills; autonomous adoption of reversible changes; sealed exam week and `hire`; audit-only judge panel; foundation memo; Codex runner; `signal add`, CI signals | live belts |
-| **0.3: earned belts** | live ladder, `gate check`, belts unlock yellow to brown; group ablation (block 2b); synthetic practice drills; exec adapters | black |
+| **0.3: earned belts** | live ladder, `gate check`, belts unlock yellow to brown; group ablation (block 2b); synthetic screen drills; exec adapters | black |
 | **0.4+** | black (R4 safety net, restore drills); held-out authoring tools; opt-in synthetic drill library (own ADR); fleets (own ADR); hosted share (own ADR, Sensitive) | |
 
 - **Internal milestones for 0.1**, each private and unpublished:
@@ -751,7 +751,7 @@ When this ADR is accepted, the generated README blocks change: the belts table i
 | The agent reads exam drills (0.1 plaintext) | Mode 0600, outside the workspace; the seal from 0.2 | Canary and path scan; a hit voids that goal's exams |
 | A drill run acts outward | Clone without remotes, environment allowlist, shims; isolation level shown | Shim log in the trace |
 | The coach writes lenient checkers (R-GG) | Admission requires that the checker fails on the mistake and on an empty run; exam drills immutable; belts from outside evidence only | `no_transfer` rate |
-| The coach overfits to exam drills | No exam read tool; leakage critic; at most 4 exam submissions per goal per drill-set version (R-HOLD) | Practice and exam gap; transfer rate |
+| The coach overfits to exam drills | No exam read tool; leakage critic; at most 4 exam submissions per goal per drill-set version (motivated by R-HOLD) | Screen and exam gap; transfer rate |
 | Injected instructions in transcripts become items | Quoted data, `validate`, the exam gate; human adoption in 0.1 | Rejected proposals counted |
 | Drill text leaks | Scrub, mode 0600, never in ShareModel, ledger diffs or coach cloud calls | Canary tests over share and ledger |
 | Belts gamed by doing less work | n_min per belt | Items per week per type, shown |
@@ -775,7 +775,7 @@ When this ADR is accepted, the generated README blocks change: the belts table i
 
 **Positive:**
 - 0.1 is the coach, not a diagnostic.
-- Every adoption is proven on the user's own mistakes and is reversible.
+- Every adoption is tested on the user's own mistakes and is reversible.
 - Belts mean what they say because the coach cannot author their evidence.
 - The estimate and the live ladder are one function, so going live in 0.3 is a switch, not a rewrite.
 - Plans and outcomes are numbers, which aggregate for fleets later.
@@ -835,9 +835,8 @@ When this ADR is accepted, the generated README blocks change: the belts table i
    - `codex exec` with an isolated `CODEX_HOME`.
 3. Token use and EUR per short headless episode on current Claude and OpenAI models; current prices.
 4. LangGraph.js: `interrupt` and `Command` resume semantics; a file-based checkpointer without native modules; the current major version.
-5. The Voyager arXiv id (2305.16291) and its curriculum mechanism; ACE's delta and counter mechanics as summarised.
-6. Small-n validity: power of the exact sign-flip test with 5-10 drills and k=3; reusable-holdout sizing for 4 submissions per goal.
-7. Share of real sessions with a usable base commit (`exact` vs `approximate`); clone cost on large repos.
+5. Small-n validity: power of the exact sign-flip test with 5-10 drills and k=3; reusable-holdout sizing for 4 submissions per goal (R-HOLD gives no usable size at this sample).
+6. Share of real sessions with a usable base commit (`exact` vs `approximate`); clone cost on large repos.
 
 ---
 
