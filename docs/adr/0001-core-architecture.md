@@ -3,6 +3,7 @@
 - Status: Accepted (2026-11-24)
 - Date: 2026-11-24
 - Amended: 2026-11-26 (citations scoped, foundations reworded; #23).
+- Amended: 2026-11-26 by ADR-0003 (owner layers; `layer` renamed `detector_level`).
 - Related: `docs/research/ingest-formats.md` (transcript and trace formats).
 - Supersedes: none (first ADR).
 
@@ -127,7 +128,7 @@ Rules of the model:
    - In Claude Code, `type: "user"` lines that carry tool results are `actor: "tool"`.
    - Hook-injected or system-reminder content is `system`.
    - Slash-command expansions are `human` with `attrs.via = "command"`.
-3. **Derived facts are not events.** Corrections, clusters and rule firings are Findings. Each Finding names its detector id and version, its layer, and the source event ids. Re-running a newer detector never rewrites events.
+3. **Derived facts are not events.** Corrections, clusters and rule firings are Findings. Each Finding names its detector id and version, its detector level where one applies (`detector_level`: L0, L1 or L2), and the source event ids; recurring-mistake Findings also carry `owner` (ADR-0003). Re-running a newer detector never rewrites events.
 4. **Format-version tag.** Every event carries `format.version` as read from the source, and `format.tested` is true only when a synthetic fixture covers that version. An untested version parses best-effort and puts a banner on the report: "parsed with an untested format version X".
 
 **Adapter contract.** Built-in adapters implement it in-process.
@@ -143,6 +144,7 @@ interface Adapter {
   run?: Runner;          // Phase 2: run a task headlessly in an isolated workspace and config dir
   guard?: Guard;         // Phase 2: install or verify a harness wall around BLACKBELT_HOME
   actuator?: Actuator;   // Phase 4: apply or revert a patch to the setup's rule/config files
+  renderCheck?(spec: CheckSpec): string;   // text only, never written (ADR-0003)
 }
 type Level = "full" | "partial" | "none";
 type Capability = "human_turns" | "interrupts" | "tool_rejections" | "tool_calls" | "tool_paths"
@@ -208,7 +210,7 @@ interface RuleSource {
 - Built-ins in v1:
   - `claude-code`: CLAUDE.md levels, CLAUDE.local.md, `.claude/rules/*.md` with `paths:`, skills, agents, commands;
   - `agents-md`: the AGENTS.md hierarchy;
-  - `manifest`: a user-declared `coach.rules.json` listing any files with their scope. This is how any other setup declares its rules without code.
+  - `manifest`: a user-declared `coach.rules.json` listing any files with their scope. This is how any other setup declares its rules, and its checks (`enforcement`, ADR-0003), without code.
 - Cursor, Gemini and Cline are plain glob-plus-scope entries in the same mechanism (v1.x).
 - Firing evidence, strongest first (R-FMT):
   - an explicit load event: Claude Code `attributionSkill`, or a Skill tool call;
@@ -216,7 +218,9 @@ interface RuleSource {
   - behavioural: v2, opt-in, because generated checkers can be wrong even after automated filters (71% correct in one manual sample, R-CHK).
 - Always-loaded rules have no load event. Block 2a reports them as "always loaded; firing not observable on this setup", never as "never fired".
 
-### 3.2 Layered correction detection
+**Enforcement-source plugin type:** see ADR-0003 §3.3.
+
+### 3.2 Correction detection in levels (L0-L2)
 
 **Options**
 
@@ -225,7 +229,7 @@ interface RuleSource {
   - Costs: recall is low; most corrections are typed words, not markers.
 - **B. LLM classification only.**
   - Costs: in one study of general chats, one small model detected user feedback with 42-81% binary accuracy (R-LING); coding-agent corrections were not tested. It is not free, and it sends text off the machine, which conflicts with the zero-network first run and the local-only rule.
-- **C. Layers.** L0 markers and L1 lexicon in code by default; L2 LLM opt-in. Every layer's precision is measured on the user's own labels.
+- **C. Levels.** L0 markers and L1 lexicon in code by default; L2 LLM opt-in. Every level's precision is measured on the user's own labels.
   - Costs: one small labelling step for users who want calibrated numbers.
 
 **Decision: C.**
@@ -247,9 +251,9 @@ A kept marker becomes an L0 correction when a human `message` follows in the sam
 - Endpoint: a local endpoint (Ollama) or a cloud model under a consent manifest (3.7, open question 3).
 - L2 never overrides L0.
 
-**Precision.** `blackbelt label` samples, locally, 30 candidates stratified by layer and 10 non-candidates. The user labels them in the terminal, and labels go to `~/.blackbelt/labels.jsonl` (local only). A user-kept corrections log (3.4) also counts as labels.
+**Precision.** `blackbelt label` samples, locally, 30 candidates stratified by detector level and 10 non-candidates. The user labels them in the terminal, and labels go to `~/.blackbelt/labels.jsonl` (local only). A user-kept corrections log (3.4) also counts as labels.
 
-- Precision per layer is reported with a 95% Wilson interval.
+- Precision per detector level is reported with a 95% Wilson interval.
 - The headline correction rate uses L0+L1.
 - L2 joins the headline only after its labelled precision is at least 0.8 with n ≥ 30. Until then it is shown separately.
 - With no labels, the report says "precision not measured on your data", with the synthetic-fixture figure next to it.
@@ -257,7 +261,7 @@ A kept marker becomes an L0 correction when a human `message` follows in the sam
 **Definitions.**
 
 - Correction rate = corrections per 100 human messages in interactive sessions, with numerator and denominator shown, overall and per `agent.label` and per work type (3.6).
-- Recurring mistakes = deterministic clusters of correction texts (MinHash/TF-IDF with a fixed seed). Each cluster has at least 3 members across at least 2 sessions and carries its nearest `cmd_head`, paths and `ruleId`.
+- Recurring mistakes = deterministic clusters of correction texts (MinHash/TF-IDF with a fixed seed). Each cluster has at least 3 members across at least 2 sessions and carries its nearest `cmd_head`, paths and `ruleId`. Each cluster has a stable id (frozen-centroid assignment), a recurrence per 100 work items, and an owner layer (ADR-0003).
 
 ### 3.3 Package layout (TypeScript, npx)
 
@@ -279,8 +283,9 @@ packages/
   cli/            published as <cli>: bin, bundled with tsup/esbuild into one ESM file, Node >= 22
     src/core/       event schema, capabilities, metric registry, store, ingest, rule-source contract,
                     L0/L1 detection, config, consent, budget meter, ledger + rollback + pause (Phase 4)
+                    owner router (route/), trace checks (checks/), replay, enforcement contract (ADR-0003)
     src/stats/      pure functions: seeded PRNG, Wilson, paired bootstrap, noise floor, ablation design, clustering
-    src/adapters/   claude-code, codex, otlp-json, canonical; rule sources claude-code, agents-md, manifest
+    src/adapters/   claude-code, codex, otlp-json, canonical; rule sources claude-code, agents-md, manifest; enforcement sources (ADR-0003)
     src/report/     report-card model, terminal render, share HTML (ShareModel only)
     src/oracle/     sealed store + oracle process entry (Phase 2)
     src/judges/     panel + provider clients over raw fetch (no SDK dependencies); lazy-loaded
@@ -356,6 +361,7 @@ config.json             user config: sources, budget, judges (key env-var NAMES 
 events/<setup>/<yyyy-mm>.jsonl.gz   content-free canonical events (400 d)
 units.json              ingest manifest: unit -> size, mtime, prefix sha256
 findings/<setup>/*.jsonl  corrections, clusters, firings (detector@version)
+inventory/<setup>/<date>.json   enforcement matchers only (ADR-0003)
 labels.jsonl  consent.jsonl
 snapshots/              opt-in raw copies (90 d)
 runs/<run_id>/          experiment runs: outputs, usage, trace.jsonl (never sealed content)
@@ -374,6 +380,8 @@ share/                  generated aggregate pages
 - **Content:**
   - correction rate;
   - recurring mistakes, with local examples;
+  - per recurring mistake: recurrence per 100 work items and where the fix belongs (or unknown), with the unknown share (ADR-0003);
+  - a checks-found panel (ADR-0003);
   - never-fired rules;
   - a coverage panel: what is measurable on this setup;
   - the data window;
@@ -743,6 +751,7 @@ Model nodes are tested on recorded fixtures.
 - detection, parsing, capability gating;
 - L0 and L1 detection, clustering;
 - rule discovery and firing (load and path);
+- rule linking, owner routing, enforcement inventory, replay (ADR-0003);
 - all statistics, the hiring verdict, the report card and share output;
 - budget, consent, seal, oracle and leakcheck;
 - ladder promotion and demotion;
@@ -819,6 +828,7 @@ Model nodes are tested on recorded fixtures.
 | Bar drift | `bar_effect = lowered` count rising while world signals worsen |
 | 60 s missed | p90 report time over 60 s in opt-in timing or on big fixtures |
 | Silent format drift | ParseIssue rate or untested-version share rising after a harness release |
+| Misrouting of owner layers (ADR-0003) | Labelled routing agreement under 0.70 at n ≥ 30 |
 
 What would change the design:
 - OTel GenAI semconv reaching Stable with human-turn and feedback concepts would make it a candidate for the internal model, via a new ADR.

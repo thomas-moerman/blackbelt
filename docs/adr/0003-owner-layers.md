@@ -5,9 +5,11 @@
 - Related: ADR-0001 (Accepted), ADR-0002 (Accepted).
 - Amends:
   - ADR-0001 §3.1 rule 3 and §3.2: the Finding field `layer` (detector level L0-L2) is renamed `detector_level`;
-  - ADR-0001 §3.1: adds the enforcement-source plugin type;
-  - ADR-0001 §3.3, §3.4, §5, §7, §8: modules, report-card content, store layout, code list, consequences, failure modes;
-  - ADR-0002 §3.2: one closed propose tool; "trainee memory" renamed;
+  - ADR-0001 §3.1: adds the enforcement-source plugin type, `renderCheck` and declared checks in the manifest;
+  - ADR-0001 §3.2: levels wording; clusters gain a stable id, recurrence and an owner layer;
+  - ADR-0001 §3.3, §3.4, §5, §8: modules, report-card content, store layout, code list, failure modes;
+  - ADR-0002 §3.1: constitution addition 1;
+  - ADR-0002 §3.2: one closed propose tool, guardrail and memory record; "trainee memory" renamed;
   - ADR-0002 §3.3: goal fields and plan view;
   - ADR-0002 §3.4: location of the trace checks;
   - ADR-0002 §3.8: README claims; ADR-0002 §7: failure modes.
